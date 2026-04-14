@@ -8,12 +8,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; min-height: 100vh; overflow-x: hidden; }
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; min-height: 100vh; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1rem; }
-        .sidebar-item { transition: all 0.3s ease; border-left: 4px solid transparent; text-align: left; }
-        .sidebar-item.active { background: rgba(59, 130, 246, 0.1); border-left-color: #3b82f6; color: #60a5fa; }
-        .chart-container { position: relative; height: 320px; width: 100%; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .sidebar-item.active { background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; color: #60a5fa; }
+        .chart-container { position: relative; height: 300px; width: 100%; }
     </style>
 </head>
 <body class="flex">
@@ -22,52 +20,45 @@
         <div class="mb-10 flex items-center gap-3">
             <img src="logoyofinalcorto.png" alt="Logo" class="w-10 h-10">
             <div>
-                <h1 class="text-xl font-bold tracking-tighter text-blue-400 text-center">COMPIURI</h1>
-                <p class="text-[10px] uppercase text-slate-500 tracking-widest text-center text-[8px]">Admin OS</p>
+                <h1 class="text-xl font-bold tracking-tighter text-blue-400">COMPIURI</h1>
+                <p class="text-[8px] uppercase text-slate-500 tracking-widest text-center">Admin OS</p>
             </div>
         </div>
         <nav class="space-y-2 flex-grow">
-            <button onclick="switchModule('inventario')" id="btn-inventario" class="sidebar-item active w-full flex items-center gap-3 p-3 rounded-r-lg hover:bg-white/5 uppercase text-[10px] font-bold tracking-widest">
+            <button onclick="switchModule('inventario')" id="btn-inventario" class="sidebar-item active w-full flex items-center gap-3 p-3 rounded-r-lg hover:bg-white/5 uppercase text-[10px] font-bold tracking-widest text-left">
                 <span>📦</span> Inventario
             </button>
-            <button onclick="switchModule('cierre')" id="btn-cierre" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-r-lg hover:bg-white/5 uppercase text-[10px] font-bold tracking-widest">
+            <button onclick="switchModule('cierre')" id="btn-cierre" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-r-lg hover:bg-white/5 uppercase text-[10px] font-bold tracking-widest text-left">
                 <span>📅</span> Cierre del Día
             </button>
         </nav>
         <div class="mt-auto pt-6 border-t border-white/10 text-[10px] text-slate-500 italic text-center">Evans Martínez</div>
     </aside>
 
-    <main class="flex-grow p-8 max-w-[calc(100vw-256px)]">
+    <main class="flex-grow p-8">
         <header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
             <div>
-                <h2 id="module-title" class="text-4xl font-bold tracking-tighter italic text-blue-100 uppercase italic">Inventario</h2>
-                <div class="flex items-center gap-2 mt-1">
-                    <span id="status-dot" class="w-2 h-2 rounded-full bg-green-500"></span>
-                    <p id="module-desc" class="text-slate-400 text-sm italic">Conectado</p>
-                </div>
+                <h2 id="module-title" class="text-4xl font-bold tracking-tighter italic text-blue-100 uppercase">Inventario</h2>
+                <p id="module-status" class="text-slate-400 text-xs mt-1">Esperando conexión...</p>
             </div>
-            <div class="relative w-full md:w-80">
-                <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar..." class="w-full bg-slate-900/50 border border-white/10 p-3 rounded-xl text-sm glass focus:outline-none focus:border-blue-500 shadow-xl">
-            </div>
+            <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar producto..." class="w-full md:w-80 bg-slate-900/50 border border-white/10 p-3 rounded-xl text-sm glass focus:outline-none focus:border-blue-500">
         </header>
-
-        <div id="category-bar" class="flex gap-2 mb-8 overflow-x-auto no-scrollbar pb-2"></div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
             <div class="lg:col-span-4 space-y-4">
-                <div class="glass p-6 h-32 flex flex-col justify-center border-l-4 border-blue-500 shadow-xl">
-                    <p id="kpi-label-1" class="text-[10px] uppercase text-slate-500 font-bold mb-1 tracking-widest text-center">Total Productos</p>
-                    <p id="kpi-val-1" class="text-3xl font-bold text-center">--</p>
+                <div class="glass p-6 h-32 flex flex-col justify-center border-l-4 border-blue-500 shadow-xl text-center">
+                    <p id="kpi-label-1" class="text-[10px] uppercase text-slate-500 font-bold mb-1 tracking-widest">Productos</p>
+                    <p id="kpi-val-1" class="text-3xl font-bold">--</p>
                 </div>
-                <div id="kpi-box-2" class="glass p-6 h-32 flex flex-col justify-center border-l-4 border-red-500 shadow-xl">
-                    <p id="kpi-label-2" class="text-[10px] uppercase text-slate-500 font-bold mb-1 tracking-widest text-center">Stock Crítico</p>
-                    <p id="kpi-val-2" class="text-3xl font-bold text-center">--</p>
+                <div class="glass p-6 h-32 flex flex-col justify-center border-l-4 border-red-500 shadow-xl text-center">
+                    <p id="kpi-label-2" class="text-[10px] uppercase text-slate-500 font-bold mb-1 tracking-widest">Alerta Stock</p>
+                    <p id="kpi-val-2" class="text-3xl font-bold">--</p>
                 </div>
-                <button onclick="refreshCurrentModule()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-2xl font-bold text-xs uppercase shadow-xl transition-all">🔄 Sincronizar</button>
+                <button onclick="refreshData()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-2xl font-bold text-xs uppercase shadow-xl transition-all">Sincronizar Datos</button>
             </div>
 
-            <div class="lg:col-span-8 glass p-6 h-[360px] overflow-hidden">
-                <p class="text-[10px] uppercase text-slate-500 font-bold mb-4 tracking-widest text-center" id="chart-title">Visualización de Datos</p>
+            <div class="lg:col-span-8 glass p-6 h-[360px]">
+                <p class="text-[10px] uppercase text-slate-500 font-bold mb-4 tracking-widest text-center">Distribución de Datos</p>
                 <div class="chart-container"><canvas id="mainChart"></canvas></div>
             </div>
         </div>
@@ -75,7 +66,7 @@
         <section class="glass overflow-hidden shadow-2xl">
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
-                    <thead id="table-head" class="bg-white/5 text-[10px] uppercase tracking-widest text-slate-500 font-bold border-b border-white/10 italic"></thead>
+                    <thead id="table-head" class="bg-white/5 text-[10px] uppercase tracking-widest text-slate-500 font-bold border-b border-white/10"></thead>
                     <tbody id="table-body" class="divide-y divide-white/5 text-sm uppercase"></tbody>
                 </table>
             </div>
@@ -83,63 +74,38 @@
     </main>
 
     <script>
-        // Evans: Ambos usan el mismo link por ahora, pero el código manejará los datos de forma distinta
-        const ENDPOINTS = {
-            inventario: "https://hook.us2.make.com/mi3g1y472l73g51refukafaej8uuspr4",
-            cierre: "https://hook.us2.make.com/mi3g1y472l73g51refukafaej8uuspr4"
-        };
-
+        const WEBHOOK_URL = "https://hook.us2.make.com/mi3g1y472l73g51refukafaej8uuspr4";
         let currentModule = 'inventario';
-        let allData = [];
+        let rawData = [];
         let myChart = null;
-        let selectedCategory = 'TODOS';
-        const palette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
 
-        async function switchModule(mod) {
-            currentModule = mod;
-            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
-            document.getElementById(`btn-${mod}`).classList.add('active');
-            document.getElementById('module-title').innerText = mod === 'inventario' ? 'INVENTARIO' : 'CIERRE DEL DÍA';
-            document.getElementById('category-bar').style.display = mod === 'inventario' ? 'flex' : 'none';
-            refreshCurrentModule();
-        }
-
-        async function refreshCurrentModule() {
+        async function refreshData() {
+            document.getElementById('module-status').innerText = "Sincronizando con Make...";
             try {
-                const response = await fetch(ENDPOINTS[currentModule]);
-                const data = await response.json();
+                const response = await fetch(WEBHOOK_URL);
+                const json = await response.json();
                 
-                // Limpieza profunda de la respuesta de Make
-                let rawList = data.productos || data.data || data;
-                if (rawList.data) rawList = rawList.data;
-                allData = Array.isArray(rawList) ? rawList : [rawList];
+                // DIAGNÓSTICO PARA EVANS: Aplanar cualquier estructura de Make
+                if (json.productos) rawData = json.productos;
+                else if (json.data) rawData = json.data;
+                else if (Array.isArray(json)) rawData = json;
+                else rawData = [json]; // Por si viene un solo objeto
 
-                if(currentModule === 'inventario') updateCategoryButtons();
+                console.log("Datos recibidos de Make:", rawData);
                 filterData();
-            } catch (e) { console.error("Error Sync", e); }
+                document.getElementById('module-status').innerText = "Última actualización: " + new Date().toLocaleTimeString();
+            } catch (error) {
+                document.getElementById('module-status').innerText = "Error: No se pudo conectar.";
+                console.error("Error Fetch:", error);
+            }
         }
-
-        function updateCategoryButtons() {
-            const categories = [...new Set(allData.map(i => {
-                const p = i.data || i.Record || i;
-                return p.CATEGORIA || 'General';
-            }))];
-            let html = `<button onclick="filterByCategory('TODOS')" class="px-4 py-2 glass rounded-full text-[10px] font-bold uppercase ${selectedCategory === 'TODOS' ? 'bg-blue-600' : ''}">Todo</button>`;
-            categories.forEach(cat => {
-                html += `<button onclick="filterByCategory('${cat}')" class="px-4 py-2 glass rounded-full text-[10px] font-bold uppercase ${selectedCategory === cat ? 'bg-blue-600' : ''}">${cat}</button>`;
-            });
-            document.getElementById('category-bar').innerHTML = html;
-        }
-
-        function filterByCategory(cat) { selectedCategory = cat; filterData(); updateCategoryButtons(); }
 
         function filterData() {
             const search = document.getElementById('main-search').value.toLowerCase();
-            const filtered = allData.filter(item => {
+            const filtered = rawData.filter(item => {
                 const p = item.data || item.Record || item;
-                const catMatch = currentModule !== 'inventario' || selectedCategory === 'TODOS' || (p.CATEGORIA || 'General') === selectedCategory;
-                const nameMatch = (p.NOMBRE_PRODUCTO || p.Producto || "").toLowerCase().includes(search);
-                return catMatch && nameMatch;
+                const nombre = (p.NOMBRE_PRODUCTO || p.Producto || p.Name || "").toString().toLowerCase();
+                return nombre.includes(search);
             });
             renderUI(filtered);
         }
@@ -148,101 +114,92 @@
             const tableBody = document.getElementById('table-body');
             const tableHead = document.getElementById('table-head');
             tableBody.innerHTML = "";
-            let labels = [], chartValues = [], colors = [];
+            
+            let labels = [], values = [], totalValue = 0, alerts = 0;
 
             if (currentModule === 'inventario') {
-                tableHead.innerHTML = `<tr><th class="p-4 uppercase">Producto</th><th class="p-4 text-center">Precio</th><th class="p-4 text-center">Stock</th></tr>`;
-                document.getElementById('kpi-label-1').innerText = "Total Productos";
-                document.getElementById('kpi-label-2').innerText = "Stock Crítico";
-                
-                let stockBajo = 0;
-                // Ordenamos para el gráfico: Stock bajo primero
-                const chartItems = [...items].sort((a,b) => {
-                    const valA = (a.data?.Stock_Disponible || a.Stock_Disponible || 0);
-                    const valB = (b.data?.Stock_Disponible || b.Stock_Disponible || 0);
-                    return valA - valB;
-                }).slice(0, 10);
-                
-                chartItems.forEach((i, idx) => {
-                    const p = i.data || i.Record || i;
-                    labels.push((p.NOMBRE_PRODUCTO || "---").substring(0, 10));
-                    chartValues.push(Math.max(0, parseInt(p.Stock_Disponible || 0)));
-                    colors.push(palette[idx % palette.length]);
-                });
-
+                tableHead.innerHTML = `<tr><th class="p-4">Producto</th><th class="p-4 text-center">Stock</th><th class="p-4 text-right">Precio</th></tr>`;
                 items.forEach(i => {
                     const p = i.data || i.Record || i;
-                    const stock = parseInt(p.Stock_Disponible || 0);
-                    if (stock < 5) stockBajo++;
-                    tableBody.innerHTML += `<tr class="border-b border-white/5"><td class="p-4 font-bold">${p.NOMBRE_PRODUCTO}</td><td class="p-4 text-center text-blue-400 font-mono">RD$ ${p.PRECIO}</td><td class="p-4 text-center"><span class="px-2 py-1 rounded-full border ${stock < 5 ? 'border-red-500 text-red-500 bg-red-500/10' : 'border-green-500 text-green-500 bg-green-500/10'} text-[10px] font-bold">${stock} UDS</span></td></tr>`;
-                });
+                    const stock = parseInt(p.Stock_Disponible || p.Stock || 0);
+                    const precio = parseFloat(p.PRECIO || p.Precio || 0);
+                    if (stock < 5) alerts++;
+                    
+                    labels.push((p.NOMBRE_PRODUCTO || p.Producto || "---").substring(0, 10));
+                    values.push(stock);
 
+                    tableBody.innerHTML += `
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                            <td class="p-4 font-bold">${p.NOMBRE_PRODUCTO || p.Producto || 'S/N'}</td>
+                            <td class="p-4 text-center">
+                                <span class="px-2 py-1 rounded-full text-[10px] font-bold ${stock < 5 ? 'bg-red-500/20 text-red-500 border border-red-500' : 'bg-green-500/20 text-green-500 border border-green-500'}">
+                                    ${stock} UDS
+                                </span>
+                            </td>
+                            <td class="p-4 text-right font-mono text-blue-400">RD$ ${precio.toLocaleString()}</td>
+                        </tr>`;
+                });
                 document.getElementById('kpi-val-1').innerText = items.length;
-                document.getElementById('kpi-val-2').innerText = stockBajo;
-                updateChart(labels, chartValues, colors, 'logarithmic');
+                document.getElementById('kpi-val-2').innerText = alerts;
+                updateChart(labels, values, 'Stock', '#3b82f6');
 
             } else {
-                // MODULO CIERRE
-                tableHead.innerHTML = `<tr><th class="p-4 uppercase">Producto</th><th class="p-4 text-center">Cant.</th><th class="p-4 text-right">Monto</th></tr>`;
-                document.getElementById('kpi-label-1').innerText = "Ingresos Hoy";
-                document.getElementById('kpi-label-2').innerText = "Ventas Totales";
-                
-                let totalDinero = 0;
-                let resumen = {};
-                
+                // MÓDULO CIERRE
+                tableHead.innerHTML = `<tr><th class="p-4">Producto</th><th class="p-4 text-center">Vendido</th><th class="p-4 text-right">Monto Total</th></tr>`;
                 items.forEach(i => {
-                    const v = i.data || i.Record || i;
-                    const nombre = v.NOMBRE_PRODUCTO || v.Producto || "Varios";
-                    // Si no hay MONTO_TOTAL, calculamos Cantidad * Precio
-                    const monto = parseFloat(v.MONTO_TOTAL || v.Total || v.PRECIO || 0);
-                    totalDinero += monto;
-                    resumen[nombre] = (resumen[nombre] || 0) + monto;
-                    tableBody.innerHTML += `<tr class="border-b border-white/5"><td class="p-4 font-bold uppercase">${nombre}</td><td class="p-4 text-center text-slate-400">1</td><td class="p-4 text-right text-green-400 font-mono font-bold">RD$ ${monto.toLocaleString()}</td></tr>`;
-                });
+                    const p = i.data || i.Record || i;
+                    const monto = parseFloat(p.MONTO_TOTAL || p.Total || p.PRECIO || 0);
+                    const cant = parseInt(p.CANTIDAD || 1);
+                    totalValue += monto;
 
-                labels = Object.keys(resumen);
-                chartValues = Object.values(resumen);
-                colors = labels.map((_, idx) => palette[idx % palette.length]);
-                
-                document.getElementById('kpi-val-1').innerText = "RD$ " + totalDinero.toLocaleString();
+                    labels.push((p.NOMBRE_PRODUCTO || p.Producto || "---").substring(0, 10));
+                    values.push(monto);
+
+                    tableBody.innerHTML += `
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                            <td class="p-4 font-bold italic">${p.NOMBRE_PRODUCTO || p.Producto || 'Venta'}</td>
+                            <td class="p-4 text-center text-slate-400">${cant}</td>
+                            <td class="p-4 text-right font-mono text-green-400 font-bold">RD$ ${monto.toLocaleString()}</td>
+                        </tr>`;
+                });
+                document.getElementById('kpi-val-1').innerText = "RD$ " + totalValue.toLocaleString();
                 document.getElementById('kpi-val-2').innerText = items.length;
-                updateChart(labels, chartValues, colors, 'linear');
+                updateChart(labels, values, 'Ingresos RD$', '#10b981');
             }
         }
 
-        function updateChart(labels, data, colors, yType) {
+        function updateChart(labels, data, label, color) {
             const ctx = document.getElementById('mainChart').getContext('2d');
             if (myChart) myChart.destroy();
             myChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: colors.map(c => c + 'B3'),
-                        borderColor: colors,
-                        borderWidth: 2,
-                        borderRadius: 6
-                    }]
+                    datasets: [{ label: label, data: data, backgroundColor: color + 'CC', borderRadius: 5 }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { 
-                            type: yType, 
-                            beginAtZero: true, 
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#94a3b8' } 
-                        },
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
                         x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 } } }
                     }
                 }
             });
         }
 
-        window.onload = () => switchModule('inventario');
+        function switchModule(mod) {
+            currentModule = mod;
+            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('btn-' + mod).classList.add('active');
+            document.getElementById('module-title').innerText = mod === 'inventario' ? 'Inventario' : 'Cierre del Día';
+            document.getElementById('kpi-label-1').innerText = mod === 'inventario' ? 'Productos' : 'Ingresos Hoy';
+            document.getElementById('kpi-label-2').innerText = mod === 'inventario' ? 'Alerta Stock' : 'Ventas Totales';
+            renderUI(rawData);
+        }
+
+        window.onload = refreshData;
     </script>
 </body>
 </html>
