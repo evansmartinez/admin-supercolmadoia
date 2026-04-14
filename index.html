@@ -38,7 +38,7 @@
         <div class="glass p-6 rounded-3xl w-full max-w-sm space-y-4 relative shadow-2xl border-t-2 border-blue-500">
             <button onclick="toggleModal()" class="absolute top-4 right-4 text-slate-400 text-xl">✕</button>
             <h3 class="text-xl font-bold text-blue-100 italic uppercase">Actualizar Stock</h3>
-            <p class="text-[10px] text-slate-400 uppercase leading-tight">Si el producto existe, la cantidad ingresada se sumará al inventario actual.</p>
+            <p class="text-[10px] text-slate-400 uppercase leading-tight">Si el producto existe, la cantidad se sumará al inventario actual.</p>
             <div class="space-y-3">
                 <input type="text" id="reg-nombre" placeholder="NOMBRE DEL PRODUCTO" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm uppercase">
                 <div class="grid grid-cols-2 gap-2">
@@ -99,14 +99,16 @@
     <script>
         // CONFIGURACIÓN DE ENDPOINTS Y ACCESO
         const AUTH = { user: "evans", pass: "1234" };
+        
+        // EVANS: AQUÍ ESTÁN TUS TRES URLS REALES. YA RESTAURÉ LA DE GUARDAR.
         const ENDPOINTS = {
             inventario: "https://hook.us2.make.com/mi3g1y472l73g51refukafaej8uuspr4",
             cierre: "https://hook.us2.make.com/d5tivtytjjtyrxw1hhcp4vr5ijerc6b5",
-            guardar: "TU_WEBHOOK_AQUI_EVANS" // <--- PEGA TU URL DE GUARDAR AQUÍ
+            guardar: "https://hook.us2.make.com/6aqam5i2qha0wxl6sfh8ee72mu6iin4w" 
         };
 
         let currentModule = 'inventario', rawData = [], myChart = null;
-        const palette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'];
+        const palette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
 
         // LÓGICA DE SESIÓN
         function handleLogin() {
@@ -169,13 +171,20 @@
                     body: JSON.stringify(data)
                 });
                 
+                // EVANS: AÑADÍ ESTA CONDICIÓN PARA QUE TE AVISE SI MAKE RECHAZA EL ENVÍO
                 if(res.ok) {
                     alert("Stock actualizado: " + nomOriginal + " ahora tiene " + stockFinal + " unidades.");
                     toggleModal();
                     refreshData(); // Recargar la lista
+                } else {
+                    alert("Error: Make.com rechazó la conexión. Revisa que tu escenario esté en ON.");
                 }
-            } catch (e) { alert("Error de comunicación con el servidor"); }
-            finally { btn.innerText = "Guardar en Sistema"; btn.disabled = false; }
+            } catch (e) { 
+                alert("Fallo de red: El servidor de Make no responde en este momento."); 
+            } finally { 
+                btn.innerText = "Guardar en Sistema"; 
+                btn.disabled = false; 
+            }
         }
 
         // FUNCIÓN DE BÚSQUEDA RESTAURADA
