@@ -11,7 +11,8 @@
         body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; min-height: 100vh; overflow-x: hidden; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1rem; }
         .sidebar-item.active { background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; color: #60a5fa; }
-        .chart-container { position: relative; height: 320px; width: 100%; }
+        .chart-container { position: relative; height: 320px; width: 100%; display: flex; justify-content: center; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="flex">
@@ -20,8 +21,8 @@
         <div class="mb-10 flex items-center gap-3">
             <img src="logoyofinalcorto.png" alt="Logo" class="w-10 h-10">
             <div>
-                <h1 class="text-xl font-bold tracking-tighter text-blue-400">COMPIURI</h1>
-                <p class="text-[8px] uppercase text-slate-500 tracking-widest text-center italic">Admin OS</p>
+                <h1 class="text-xl font-bold tracking-tighter text-blue-400 uppercase">COMPIURI</h1>
+                <p class="text-[8px] uppercase text-slate-500 tracking-widest text-center">Admin OS</p>
             </div>
         </div>
         <nav class="space-y-2 flex-grow">
@@ -39,7 +40,7 @@
         <header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
             <div>
                 <h2 id="module-title" class="text-4xl font-bold tracking-tighter italic text-blue-100 uppercase italic">Inventario</h2>
-                <p id="module-status" class="text-slate-400 text-xs mt-1 italic">Sincronizando...</p>
+                <p id="module-status" class="text-slate-400 text-xs mt-1 italic">Conectado con La Grada</p>
             </div>
             <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar..." class="w-full md:w-80 bg-slate-900/50 border border-white/10 p-3 rounded-xl text-sm glass focus:outline-none focus:border-blue-500 shadow-xl">
         </header>
@@ -47,18 +48,18 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
             <div class="lg:col-span-4 space-y-4">
                 <div class="glass p-6 h-32 flex flex-col justify-center border-l-4 border-blue-500 shadow-xl text-center">
-                    <p id="kpi-label-1" class="text-[10px] uppercase text-slate-500 font-bold mb-1 tracking-widest">Productos</p>
+                    <p id="kpi-label-1" class="text-[10px] uppercase text-slate-500 font-bold mb-1 tracking-widest">Métrica 1</p>
                     <p id="kpi-val-1" class="text-3xl font-bold">--</p>
                 </div>
                 <div class="glass p-6 h-32 flex flex-col justify-center border-l-4 border-red-500 shadow-xl text-center">
-                    <p id="kpi-label-2" class="text-[10px] uppercase text-slate-500 font-bold mb-1 tracking-widest">Alerta Stock</p>
+                    <p id="kpi-label-2" class="text-[10px] uppercase text-slate-500 font-bold mb-1 tracking-widest">Métrica 2</p>
                     <p id="kpi-val-2" class="text-3xl font-bold">--</p>
                 </div>
-                <button onclick="refreshData()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-2xl font-bold text-xs uppercase shadow-xl transition-all">Sincronizar</button>
+                <button onclick="refreshData()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-2xl font-bold text-xs uppercase shadow-xl transition-all active:scale-95">Sincronizar</button>
             </div>
 
             <div class="lg:col-span-8 glass p-6 h-[360px]">
-                <p class="text-[10px] uppercase text-slate-500 font-bold mb-4 tracking-widest text-center" id="chart-title">Gráfico de Análisis</p>
+                <p class="text-[10px] uppercase text-slate-500 font-bold mb-4 tracking-widest text-center" id="chart-title">Distribución de Ingresos</p>
                 <div class="chart-container"><canvas id="mainChart"></canvas></div>
             </div>
         </div>
@@ -86,13 +87,13 @@
                 const response = await fetch(WEBHOOK_URL);
                 const json = await response.json();
                 
-                // Limpieza de datos
+                // Limpieza de datos (Aplanamos cualquier estructura de Make)
                 let extracted = json.productos || json.data || (Array.isArray(json) ? json : [json]);
                 if (extracted.data) extracted = extracted.data;
-                rawData = extracted;
+                rawData = Array.isArray(extracted) ? extracted : [extracted];
 
                 filterData();
-                document.getElementById('module-status').innerText = "Actualizado: " + new Date().toLocaleTimeString();
+                document.getElementById('module-status').innerText = "Última Sincronización: " + new Date().toLocaleTimeString();
             } catch (e) {
                 document.getElementById('module-status').innerText = "Error de conexión";
             }
@@ -112,19 +113,21 @@
             const tableBody = document.getElementById('table-body');
             const tableHead = document.getElementById('table-head');
             tableBody.innerHTML = "";
-            let labels = [], chartValues = [], colors = [];
+            let labels = [], values = [], colors = [];
 
             if (currentModule === 'inventario') {
                 tableHead.innerHTML = `<tr><th class="p-4">Producto</th><th class="p-4 text-center">Stock</th><th class="p-4 text-right">Precio</th></tr>`;
-                let alerts = 0;
+                document.getElementById('kpi-label-1').innerText = "Total Productos";
+                document.getElementById('kpi-label-2').innerText = "Stock Crítico";
                 
-                // Ordenar para gráfico (Top 10 críticos)
+                let alerts = 0;
+                // Gráfico de barras para inventario (Escala Logarítmica por el Arroz)
                 const chartItems = [...items].sort((a,b) => (a.data?.Stock_Disponible || a.Stock_Disponible || 0) - (b.data?.Stock_Disponible || b.Stock_Disponible || 0)).slice(0, 10);
                 
                 chartItems.forEach((i, idx) => {
                     const p = i.data || i.Record || i;
-                    labels.push((p.NOMBRE_PRODUCTO || p.Producto || "S/N").substring(0, 10));
-                    chartValues.push(Math.max(1, parseInt(p.Stock_Disponible || p.Stock || 0)));
+                    labels.push((p.NOMBRE_PRODUCTO || p.Producto || "---").substring(0, 10));
+                    values.push(Math.max(1, parseInt(p.Stock_Disponible || p.Stock || 0)));
                     colors.push(palette[idx % palette.length]);
                 });
 
@@ -132,56 +135,77 @@
                     const p = i.data || i.Record || i;
                     const stock = parseInt(p.Stock_Disponible || p.Stock || 0);
                     if (stock < 5) alerts++;
-                    tableBody.innerHTML += `<tr class="border-b border-white/5 hover:bg-white/5"><td class="p-4 font-bold">${p.NOMBRE_PRODUCTO || p.Producto || '---'}</td><td class="p-4 text-center"><span class="px-2 py-1 rounded-full text-[10px] border ${stock < 5 ? 'border-red-500 text-red-500' : 'border-green-500 text-green-500'} font-bold">${stock} UDS</span></td><td class="p-4 text-right font-mono text-blue-400">RD$ ${parseFloat(p.PRECIO || 0).toLocaleString()}</td></tr>`;
+                    tableBody.innerHTML += `<tr class="border-b border-white/5 hover:bg-white/5"><td class="p-4 font-bold">${p.NOMBRE_PRODUCTO || p.Producto || '---'}</td><td class="p-4 text-center"><span class="px-2 py-1 rounded-full text-[10px] border ${stock < 5 ? 'border-red-500 text-red-500 bg-red-500/10' : 'border-green-500 text-green-500 bg-green-500/10'} font-bold">${stock} UDS</span></td><td class="p-4 text-right font-mono text-blue-400">RD$ ${parseFloat(p.PRECIO || 0).toLocaleString()}</td></tr>`;
                 });
 
                 document.getElementById('kpi-val-1').innerText = items.length;
                 document.getElementById('kpi-val-2').innerText = alerts;
-                updateChart(labels, chartValues, colors, 'logarithmic', 'x');
+                updateChart(labels, values, colors, 'bar', 'logarithmic');
 
             } else {
-                tableHead.innerHTML = `<tr><th class="p-4">Producto</th><th class="p-4 text-center">Vendido</th><th class="p-4 text-right">Total</th></tr>`;
-                let totalMonto = 0;
+                // MODULO CIERRE - GRÁFICO DE TORTA
+                tableHead.innerHTML = `<tr><th class="p-4">Producto</th><th class="p-4 text-center">Cant.</th><th class="p-4 text-right">Monto Total</th></tr>`;
+                document.getElementById('kpi-label-1').innerText = "Ingresos del Día";
+                document.getElementById('kpi-label-2').innerText = "Ventas Registradas";
+                
+                let totalDia = 0;
                 let agrupar = {};
 
                 items.forEach(i => {
                     const p = i.data || i.Record || i;
                     const nombre = p.NOMBRE_PRODUCTO || p.Producto || "Venta";
                     const monto = parseFloat(p.MONTO_TOTAL || p.Total || p.PRECIO || 0);
-                    totalMonto += monto;
+                    totalDia += monto;
                     agrupar[nombre] = (agrupar[nombre] || 0) + monto;
-                    tableBody.innerHTML += `<tr class="border-b border-white/5"><td class="p-4 font-bold italic">${nombre}</td><td class="p-4 text-center text-slate-400">1</td><td class="p-4 text-right font-mono text-green-400 font-bold">RD$ ${monto.toLocaleString()}</td></tr>`;
+                    tableBody.innerHTML += `<tr class="border-b border-white/5"><td class="p-4 font-bold italic">${nombre}</td><td class="p-4 text-center text-slate-400">${p.CANTIDAD || 1}</td><td class="p-4 text-right font-mono text-green-400 font-bold">RD$ ${monto.toLocaleString()}</td></tr>`;
                 });
 
                 labels = Object.keys(agrupar);
-                chartValues = Object.values(agrupar);
+                values = Object.values(agrupar);
                 colors = labels.map((_, idx) => palette[idx % palette.length]);
                 
-                document.getElementById('kpi-val-1').innerText = "RD$ " + totalMonto.toLocaleString();
+                document.getElementById('kpi-val-1').innerText = "RD$ " + totalDia.toLocaleString();
                 document.getElementById('kpi-val-2').innerText = items.length;
-                updateChart(labels, chartValues, colors, 'linear', 'y');
+                updateChart(labels, values, colors, 'pie', 'linear');
             }
         }
 
-        function updateChart(labels, data, colors, scaleType, axis) {
+        function updateChart(labels, data, colors, type, yScale) {
             const ctx = document.getElementById('mainChart').getContext('2d');
             if (myChart) myChart.destroy();
-            myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{ data: data, backgroundColor: colors.map(c => c + 'B3'), borderColor: colors, borderWidth: 1, borderRadius: 5 }]
-                },
-                options: {
-                    indexAxis: axis,
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { type: axis === 'x' ? scaleType : 'category', beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-                        x: { type: axis === 'y' ? scaleType : 'category', grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 } } }
+            
+            const options = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { 
+                        display: type === 'pie', // Solo mostrar leyenda si es Torta
+                        position: 'right',
+                        labels: { color: '#94a3b8', font: { size: 10 } }
                     }
                 }
+            };
+
+            // Solo aplicar escalas si NO es un gráfico de torta
+            if (type !== 'pie') {
+                options.scales = {
+                    y: { type: yScale, beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 } } }
+                };
+            }
+
+            myChart = new Chart(ctx, {
+                type: type,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors.map(c => c + 'CC'),
+                        borderColor: '#0f172a',
+                        borderWidth: 2
+                    }]
+                },
+                options: options
             });
         }
 
