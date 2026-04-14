@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COMPIURI OS - Price Intelligence</title>
+    <title>COMPIURI OS - Business Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; min-height: 100vh; overflow-x: hidden; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1rem; }
-        .sidebar-item { transition: all 0.3s ease; border-left: 4px solid transparent; }
+        .sidebar-item { transition: all 0.3s ease; border-left: 4px solid transparent; text-align: left; }
         .sidebar-item.active { background: rgba(59, 130, 246, 0.1); border-left-color: #3b82f6; color: #60a5fa; }
         .chart-container { position: relative; height: 320px; width: 100%; }
-        .category-btn.active { background: #3b82f6; border-color: #60a5fa; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .category-btn.active { background: #3b82f6; border-color: #60a5fa; }
     </style>
 </head>
 <body class="flex">
@@ -27,14 +28,14 @@
             </div>
         </div>
         <nav class="space-y-2 flex-grow">
-            <button onclick="switchModule('inventario')" id="btn-inventario" class="sidebar-item active w-full flex items-center gap-3 p-3 rounded-r-lg hover:bg-white/5 uppercase text-xs font-bold tracking-widest text-left">
+            <button onclick="switchModule('inventario')" id="btn-inventario" class="sidebar-item active w-full flex items-center gap-3 p-3 rounded-r-lg hover:bg-white/5 uppercase text-xs font-bold tracking-widest">
                 <span>📦</span> Inventario
             </button>
-            <button onclick="switchModule('ventas')" id="btn-ventas" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-r-lg hover:bg-white/5 uppercase text-xs font-bold tracking-widest text-left">
+            <button onclick="switchModule('ventas')" id="btn-ventas" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-r-lg hover:bg-white/5 uppercase text-xs font-bold tracking-widest">
                 <span>💰</span> Ventas
             </button>
-            <button onclick="switchModule('precios')" id="btn-precios" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-r-lg hover:bg-white/5 uppercase text-xs font-bold tracking-widest text-left">
-                <span>📈</span> Historial Precios
+            <button onclick="switchModule('precios')" id="btn-precios" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-r-lg hover:bg-white/5 uppercase text-xs font-bold tracking-widest">
+                <span>📈</span> Precios
             </button>
         </nav>
         <div class="mt-auto pt-6 border-t border-white/10 text-[10px] text-slate-500 italic text-center">Evans Martínez</div>
@@ -44,33 +45,34 @@
         <header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
             <div>
                 <h2 id="module-title" class="text-4xl font-bold tracking-tighter italic text-blue-100">Inventario</h2>
-                <p id="module-desc" class="text-slate-400 text-sm">Análisis de activos en tiempo real.</p>
+                <div class="flex items-center gap-2 mt-1">
+                    <span id="status-dot" class="w-2 h-2 rounded-full bg-green-500"></span>
+                    <p id="module-desc" class="text-slate-400 text-sm">Monitoreo de existencias.</p>
+                </div>
             </div>
             <div class="relative w-full md:w-80">
-                <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar..." class="w-full bg-slate-900/50 border border-white/10 p-3 rounded-xl text-sm glass focus:outline-none focus:border-blue-500">
+                <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar..." class="w-full bg-slate-900/50 border border-white/10 p-3 rounded-xl text-sm glass focus:outline-none focus:border-blue-500 shadow-xl">
             </div>
         </header>
 
-        <div id="category-bar" class="flex gap-2 mb-8 overflow-x-auto pb-2 no-scrollbar"></div>
+        <div id="category-bar" class="flex gap-2 mb-8 overflow-x-auto no-scrollbar pb-2"></div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
             <div class="lg:col-span-4 space-y-4">
                 <div class="glass p-6 h-32 flex flex-col justify-center border-l-4 border-blue-500">
-                    <p id="kpi-label-1" class="text-[10px] uppercase text-slate-500 font-bold mb-1">Total</p>
+                    <p id="kpi-label-1" class="text-[10px] uppercase text-slate-500 font-bold mb-1 tracking-widest">Total</p>
                     <p id="kpi-val-1" class="text-3xl font-bold">0</p>
                 </div>
-                <div id="kpi-box-2" class="glass p-6 h-32 flex flex-col justify-center border-l-4 border-yellow-500">
-                    <p id="kpi-label-2" class="text-[10px] uppercase text-slate-500 font-bold mb-1">Métrica</p>
-                    <p id="kpi-val-2" class="text-3xl font-bold">0</p>
+                <div id="kpi-box-2" class="glass p-6 h-32 flex flex-col justify-center border-l-4 border-red-500">
+                    <p id="kpi-label-2" class="text-[10px] uppercase text-slate-500 font-bold mb-1 tracking-widest text-xs">Crítico</p>
+                    <p id="kpi-val-2" class="text-3xl font-bold text-red-500 text-center">0</p>
                 </div>
-                <button onclick="refreshCurrentModule()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-2xl font-bold text-xs uppercase shadow-xl transition-all active:scale-95">🔄 Actualizar Datos</button>
+                <button onclick="refreshCurrentModule()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-2xl font-bold text-xs uppercase shadow-xl transition-all active:scale-95">🔄 Sincronizar</button>
             </div>
 
             <div class="lg:col-span-8 glass p-6 h-[360px] overflow-hidden">
-                <p class="text-[10px] uppercase text-slate-500 font-bold mb-4 tracking-widest" id="chart-title text-xs">Tendencia de Datos</p>
-                <div class="chart-container">
-                    <canvas id="mainChart"></canvas>
-                </div>
+                <p class="text-[10px] uppercase text-slate-500 font-bold mb-4 tracking-widest" id="chart-title text-xs">Análisis Visual</p>
+                <div class="chart-container"><canvas id="mainChart"></canvas></div>
             </div>
         </div>
 
@@ -78,9 +80,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
                     <thead id="table-head" class="bg-white/5 text-[10px] uppercase tracking-widest text-slate-500 font-bold border-b border-white/10"></thead>
-                    <tbody id="table-body" class="divide-y divide-white/5 text-sm">
-                        <tr><td colspan="4" class="p-20 text-center animate-pulse">CARGANDO...</td></tr>
-                    </tbody>
+                    <tbody id="table-body" class="divide-y divide-white/5 text-sm"></tbody>
                 </table>
             </div>
         </section>
@@ -90,17 +90,18 @@
         const ENDPOINTS = {
             inventario: "https://hook.us2.make.com/mi3g1y472l73g51refukafaej8uuspr4",
             ventas: "TU_WEBHOOK_VENTAS_AQUI",
-            precios: "https://hook.us2.make.com/mi3g1y472l73g51refukafaej8uuspr4" // Usando el mismo por ahora
+            precios: "https://hook.us2.make.com/mi3g1y472l73g51refukafaej8uuspr4"
         };
 
         let currentModule = 'inventario';
         let allData = [];
         let myChart = null;
+        let selectedCategory = 'TODOS';
+        const palette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
 
-        function initChart(labels, data, label, type = 'bar') {
+        function initChart(labels, data, label, type = 'bar', colors) {
             const ctx = document.getElementById('mainChart').getContext('2d');
             if (myChart) myChart.destroy();
-            
             myChart = new Chart(ctx, {
                 type: type,
                 data: {
@@ -108,11 +109,12 @@
                     datasets: [{
                         label: label,
                         data: data,
-                        backgroundColor: type === 'line' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.7)',
-                        borderColor: '#3b82f6',
-                        borderWidth: 3,
+                        backgroundColor: type === 'line' ? 'rgba(59, 130, 246, 0.2)' : colors.map(c => c + 'B3'),
+                        borderColor: type === 'line' ? '#3b82f6' : colors,
+                        borderWidth: 2,
                         fill: true,
-                        tension: 0.4 // Suaviza la línea
+                        borderRadius: 5,
+                        tension: 0.4
                     }]
                 },
                 options: {
@@ -120,8 +122,8 @@
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { beginAtZero: false, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-                        x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 } } }
+                        y: { type: currentModule === 'inventario' ? 'logarithmic' : 'linear', beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        x: { grid: { display: false }, ticks: { font: { size: 9 }, maxRotation: 45 } }
                     }
                 }
             });
@@ -131,17 +133,7 @@
             currentModule = mod;
             document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
             document.getElementById(`btn-${mod}`).classList.add('active');
-            
-            const config = {
-                inventario: ["Inventario", "Existencias", "Stock Crítico"],
-                ventas: ["Ventas", "Total RD$", "Órdenes"],
-                precios: ["Historial", "Promedio", "Cambios"]
-            };
-            
-            document.getElementById('module-title').innerText = config[mod][0];
-            document.getElementById('kpi-label-1').innerText = config[mod][1];
-            document.getElementById('kpi-label-2').innerText = config[mod][2];
-            
+            document.getElementById('category-bar').style.display = mod === 'inventario' ? 'flex' : 'none';
             refreshCurrentModule();
         }
 
@@ -150,42 +142,66 @@
                 const response = await fetch(ENDPOINTS[currentModule]);
                 const data = await response.json();
                 allData = data.productos || data.data || data;
-                renderDashboard();
-            } catch (e) { console.error("Sync Error"); }
+                if(currentModule === 'inventario') updateCategoryButtons();
+                filterData();
+            } catch (e) { console.error("Error"); }
         }
 
-        function renderDashboard() {
+        function updateCategoryButtons() {
+            const categories = [...new Set(allData.map(i => (i.data?.CATEGORIA || i.CATEGORIA || 'General')))];
+            let html = `<button onclick="filterByCategory('TODOS')" class="px-4 py-2 glass rounded-full text-[10px] font-bold uppercase ${selectedCategory === 'TODOS' ? 'bg-blue-600' : ''}">Todo</button>`;
+            categories.forEach(cat => {
+                html += `<button onclick="filterByCategory('${cat}')" class="px-4 py-2 glass rounded-full text-[10px] font-bold uppercase ${selectedCategory === cat ? 'bg-blue-600' : ''}">${cat}</button>`;
+            });
+            document.getElementById('category-bar').innerHTML = html;
+        }
+
+        function filterByCategory(cat) { selectedCategory = cat; filterData(); updateCategoryButtons(); }
+
+        function filterData() {
+            const search = document.getElementById('main-search').value.toLowerCase();
+            const filtered = allData.filter(item => {
+                const p = item.data || item;
+                const catMatch = currentModule !== 'inventario' || selectedCategory === 'TODOS' || (p.CATEGORIA || 'General') === selectedCategory;
+                const nameMatch = (p.NOMBRE_PRODUCTO || p.Cliente || "").toLowerCase().includes(search);
+                return catMatch && nameMatch;
+            });
+            renderUI(filtered);
+        }
+
+        function renderUI(items) {
             const tableBody = document.getElementById('table-body');
             const tableHead = document.getElementById('table-head');
             tableBody.innerHTML = "";
-            
-            let labels = [], chartData = [];
+            let labels = [], chartData = [], colors = [];
 
-            if (currentModule === 'precios') {
-                tableHead.innerHTML = `<tr><th class="p-4">Producto</th><th class="p-4 text-center">Precio Anterior</th><th class="p-4 text-center">Precio Actual</th><th class="p-4 text-center">Estado</th></tr>`;
-                
-                // Filtramos productos que tengan precio para graficar la tendencia
-                const trendData = allData.slice(0, 10);
-                labels = trendData.map(i => (i.data?.NOMBRE_PRODUCTO || i.NOMBRE_PRODUCTO || "").substring(0, 8));
-                chartData = trendData.map(i => i.data?.PRECIO || i.PRECIO || 0);
-                
-                trendData.forEach(item => {
-                    const p = item.data || item;
-                    tableBody.innerHTML += `
-                        <tr class="hover:bg-white/5 border-b border-white/5">
-                            <td class="p-4 font-bold uppercase">${p.NOMBRE_PRODUCTO}</td>
-                            <td class="p-4 text-center text-slate-500 font-mono">RD$ ${p.PRECIO_ANT || '---'}</td>
-                            <td class="p-4 text-center font-mono text-blue-400 font-bold">RD$ ${p.PRECIO}</td>
-                            <td class="p-4 text-center"><span class="text-[10px] font-bold text-green-400">ESTABLE</span></td>
-                        </tr>`;
+            if (currentModule === 'inventario') {
+                tableHead.innerHTML = `<tr><th class="p-4 uppercase">Producto</th><th class="p-4 text-center">Precio</th><th class="p-4 text-center">Stock</th></tr>`;
+                const sorted = [...items].sort((a,b) => (a.data?.Stock_Disponible || 0) - (b.data?.Stock_Disponible || 0)).slice(0, 10);
+                sorted.forEach((i, idx) => {
+                    const p = i.data || i;
+                    labels.push((p.NOMBRE_PRODUCTO || "").substring(0, 10));
+                    chartData.push(Math.max(1, p.Stock_Disponible || 0));
+                    colors.push(palette[idx % palette.length]);
                 });
-                initChart(labels, chartData, 'Evolución de Precio', 'line');
-            } else {
-                // ... Aquí va el render de inventario anterior (mantenlo igual)
-                switchModule('inventario'); // Default
+                items.forEach(i => {
+                    const p = i.data || i;
+                    tableBody.innerHTML += `<tr class="border-b border-white/5"><td class="p-4 font-bold uppercase">${p.NOMBRE_PRODUCTO}</td><td class="p-4 text-center text-blue-400 font-mono">RD$ ${p.PRECIO}</td><td class="p-4 text-center"><span class="px-2 py-1 rounded-full border ${p.Stock_Disponible < 5 ? 'border-red-500 text-red-500' : 'border-green-500 text-green-500'} text-[10px]">${p.Stock_Disponible} UDS</span></td></tr>`;
+                });
+                document.getElementById('kpi-val-1').innerText = items.length;
+                initChart(labels, chartData, 'Stock', 'bar', colors);
+            } else if (currentModule === 'precios') {
+                tableHead.innerHTML = `<tr><th class="p-4">Producto</th><th class="p-4 text-center">Precio</th></tr>`;
+                const top = items.slice(0, 10);
+                labels = top.map(i => (i.data?.NOMBRE_PRODUCTO || "").substring(0, 8));
+                chartData = top.map(i => i.data?.PRECIO || 0);
+                top.forEach(i => {
+                    const p = i.data || i;
+                    tableBody.innerHTML += `<tr class="border-b border-white/5"><td class="p-4 uppercase font-bold">${p.NOMBRE_PRODUCTO}</td><td class="p-4 text-center text-blue-400 font-mono">RD$ ${p.PRECIO}</td></tr>`;
+                });
+                initChart(labels, chartData, 'Precios', 'line', ['#3b82f6']);
             }
         }
-
         window.onload = () => switchModule('inventario');
     </script>
 </body>
