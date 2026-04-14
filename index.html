@@ -46,12 +46,12 @@
                     <img src="logoyofinalcorto.png" alt="Logo Compiuri" class="w-20 h-auto mx-auto">
                 </div>
                 <h1 class="text-3xl font-bold tracking-wider text-blue-400">COMPIURI</h1>
-                <p class="text-xs text-slate-400 uppercase tracking-widest mt-1">Colmado La Grada</p>
+                <p class="text-xs text-slate-400 uppercase tracking-widest mt-1 italic">Powered by Evans</p>
             </div>
             <a href="#" class="glass-card p-3 rounded-lg flex items-center gap-3 text-blue-300">📦 Inventario</a>
             <a href="#" class="p-3 rounded-lg flex items-center gap-3 text-slate-300 hover:text-white transition">💰 Ventas</a>
             <a href="#" class="p-3 rounded-lg flex items-center gap-3 text-slate-300 hover:text-white transition">👥 Clientes</a>
-            <div class="mt-auto pt-6 border-t border-white/10 text-xs text-slate-500 italic">Evans Martínez</div>
+            <div class="mt-auto pt-6 border-t border-white/10 text-xs text-slate-500 italic">Administrador: Evans</div>
         </nav>
 
         <main class="lg:col-span-9 space-y-6">
@@ -76,7 +76,7 @@
 
             <section class="glass p-6">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-semibold uppercase tracking-tight text-blue-100">Control de Inventario</h2>
+                    <h2 class="text-xl font-semibold uppercase tracking-tight">Control de Inventario Real</h2>
                     <button onclick="cargarDatos()" class="bg-blue-600 hover:bg-blue-500 px-5 py-2 rounded-lg text-sm font-bold transition">
                         🔄 Refrescar
                     </button>
@@ -90,13 +90,13 @@
                                 <th class="pb-4 text-center">Categoría</th>
                                 <th class="pb-4 text-center">Precio (RD$)</th>
                                 <th class="pb-4 text-center">Stock</th>
-                                <th class="pb-4 text-right">Acción</th>
+                                <th class="pb-4 text-right px-2">Acción</th>
                             </tr>
                         </thead>
                         <tbody id="inventory-body" class="text-sm">
                             <tr>
                                 <td colspan="5" class="py-20 text-center text-slate-400 italic">
-                                    Conectando con el Data Store de Compiuri...
+                                    Conectando con Compiuri Data Store...
                                 </td>
                             </tr>
                         </tbody>
@@ -120,8 +120,8 @@
                 const response = await fetch(MAKE_URL);
                 const data = await response.json();
 
-                // Extraemos el array del objeto "productos" que configuramos en Make
-                const listado = data.productos || [];
+                // El código ahora es "inteligente": busca la lista en 'productos' o en la raíz
+                const listado = data.productos || (Array.isArray(data) ? data : []);
                 
                 if (listado.length >= 0) {
                     statusEl.innerText = "Online";
@@ -134,34 +134,34 @@
 
                     tableBody.innerHTML = '';
 
-                    // Ordenar alfabéticamente por NOMBRE_PRODUCTO
+                    // Ordenar alfabéticamente
                     listado.sort((a, b) => {
-                        const nameA = (a.NOMBRE_PRODUCTO || "").toUpperCase();
-                        const nameB = (b.NOMBRE_PRODUCTO || "").toUpperCase();
+                        const nameA = (a.NOMBRE_PRODUCTO || a.value?.NOMBRE_PRODUCTO || "").toString().toUpperCase();
+                        const nameB = (b.NOMBRE_PRODUCTO || b.value?.NOMBRE_PRODUCTO || "").toString().toUpperCase();
                         return (nameA < nameB) ? -1 : (nameA > nameB) ? 1 : 0;
                     });
 
                     listado.forEach(prod => {
-                        // Mapeo de tus campos reales del Data Store
-                        const nombre = prod.NOMBRE_PRODUCTO || "Sin nombre";
-                        const precioRaw = prod.PRECIO || 0;
-                        const stockRaw = prod.Stock_Disponible || 0;
-                        const categoria = prod.CATEGORIA || "General";
+                        // Extraer datos incluso si Make los envía "crudos" dentro de un objeto 'value'
+                        const nombre = prod.NOMBRE_PRODUCTO || prod.value?.NOMBRE_PRODUCTO || "Sin nombre";
+                        const precioVal = prod.PRECIO || prod.value?.PRECIO || 0;
+                        const stockVal = prod.Stock_Disponible || prod.value?.Stock_Disponible || 0;
+                        const categoria = prod.CATEGORIA || prod.value?.CATEGORIA || "General";
 
-                        const precio = parseFloat(precioRaw).toLocaleString('en-US', {minimumFractionDigits: 2});
-                        const stock = parseInt(stockRaw);
+                        const precio = parseFloat(precioVal).toLocaleString('en-US', {minimumFractionDigits: 2});
+                        const stock = parseInt(stockVal);
 
                         const stockClass = stock <= 5 ? 'text-red-400 bg-red-500/10 border-red-500/20' : 'text-green-400 bg-green-500/10 border-green-500/20';
                         
                         tableBody.innerHTML += `
                             <tr class="border-b border-white/5 hover:bg-white/5 transition group">
-                                <td class="py-4 px-2 font-semibold text-slate-200 group-hover:text-blue-300 uppercase">${nombre}</td>
+                                <td class="py-4 px-2 font-semibold text-slate-200 group-hover:text-blue-300 uppercase tracking-tighter">${nombre}</td>
                                 <td class="py-4 text-center text-slate-400 text-xs uppercase">${categoria}</td>
                                 <td class="py-4 text-center font-mono font-bold text-blue-300">RD$ ${precio}</td>
                                 <td class="py-4 text-center">
                                     <span class="${stockClass} px-3 py-1 rounded-full text-xs font-bold border">${stock} uds</span>
                                 </td>
-                                <td class="py-4 text-right">
+                                <td class="py-4 text-right px-2">
                                     <button class="bg-white/5 hover:bg-white/10 p-2 rounded-lg transition">✏️</button>
                                 </td>
                             </tr>
@@ -169,18 +169,18 @@
                     });
 
                     if(listado.length === 0) {
-                        tableBody.innerHTML = '<tr><td colspan="5" class="py-20 text-center text-slate-500">El inventario está vacío.</td></tr>';
+                        tableBody.innerHTML = '<tr><td colspan="5" class="py-20 text-center text-slate-500 italic text-lg">El inventario está vacío.</td></tr>';
                     }
                 }
             } catch (error) {
                 console.error("Error cargando Compiuri:", error);
                 statusEl.innerText = "Error Link";
                 statusEl.classList.replace('text-yellow-500', 'text-red-500');
-                tableBody.innerHTML = `<tr><td colspan="5" class="py-10 text-center text-red-400 font-bold">Error de conexión. Revisa el escenario de Make.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="5" class="py-10 text-center text-red-400 font-bold">Error al conectar con Make. Revisa el escenario.</td></tr>`;
             }
         }
 
-        // Actualizar cada 30 segundos
+        // Auto-refrescar cada 30 segundos
         setInterval(cargarDatos, 30000);
         window.onload = cargarDatos;
     </script>
