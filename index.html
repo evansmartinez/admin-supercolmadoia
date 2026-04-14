@@ -3,76 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>COMPIURI OS - Mobile Admin</title>
+    <title>COMPIURI OS - Secure Access</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; min-height: 100vh; }
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; min-height: 100vh; overflow-x: hidden; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .tab-active { color: #60a5fa; border-top: 3px solid #3b82f6; background: rgba(59, 130, 246, 0.1); }
         .chart-container { position: relative; height: 280px; width: 100%; }
-        /* Evita el scroll horizontal molesto */
-        html, body { overflow-x: hidden; width: 100%; }
+        #login-screen { position: fixed; inset: 0; z-index: 100; background: #0f172a; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .hidden { display: none !important; }
     </style>
 </head>
-<body class="pb-20"> <header class="p-6 glass sticky top-0 z-50 flex justify-between items-center">
-        <div>
-            <h1 id="module-title" class="text-2xl font-bold tracking-tighter text-blue-400 italic uppercase">Inventario</h1>
-            <p id="module-desc" class="text-[10px] text-slate-400 uppercase tracking-widest">Sincronizado</p>
-        </div>
-        <img src="logoyofinalcorto.png" alt="Logo" class="w-10 h-10 rounded-lg shadow-lg">
-    </header>
+<body class="pb-20">
 
-    <main class="p-4 space-y-6">
-        
-        <div class="relative">
-            <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar producto..." 
-                class="w-full bg-slate-900/80 border border-white/10 p-4 rounded-2xl text-sm glass focus:outline-none focus:border-blue-500 shadow-2xl">
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-            <div class="glass p-4 rounded-2xl border-l-4 border-blue-500">
-                <p id="kpi-label-1" class="text-[9px] uppercase text-slate-500 font-bold mb-1">Total</p>
-                <p id="kpi-val-1" class="text-xl font-bold">--</p>
+    <div id="login-screen">
+        <div class="glass p-8 rounded-3xl w-full max-w-sm shadow-2xl text-center space-y-6">
+            <img src="logoyofinalcorto.png" alt="Logo" class="w-20 h-20 mx-auto rounded-2xl shadow-lg border border-white/10">
+            <div>
+                <h2 class="text-2xl font-bold text-blue-400 italic">COMPIURI OS</h2>
+                <p class="text-[10px] text-slate-500 uppercase tracking-widest">Acceso Restringido</p>
             </div>
-            <div class="glass p-4 rounded-2xl border-l-4 border-red-500">
-                <p id="kpi-label-2" class="text-[9px] uppercase text-slate-500 font-bold mb-1">Alerta</p>
-                <p id="kpi-val-2" class="text-xl font-bold">--</p>
+            <div class="space-y-4">
+                <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+                <input type="password" id="pass" placeholder="Contraseña" class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+                <p id="login-error" class="text-red-500 text-[10px] font-bold uppercase hidden">Credenciales Incorrectas</p>
+                <button onclick="handleLogin()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold uppercase text-xs shadow-xl transition-all active:scale-95">Entrar al Sistema</button>
             </div>
+            <p class="text-[9px] text-slate-600">Admin: Evans Martínez</p>
         </div>
+    </div>
 
-        <div class="glass p-4 rounded-2xl">
-            <p class="text-[10px] uppercase text-slate-500 font-bold mb-4 text-center tracking-widest">Análisis Visual</p>
-            <div class="chart-container">
-                <canvas id="mainChart"></canvas>
+    <div id="main-app" class="hidden">
+        <header class="p-6 glass sticky top-0 z-50 flex justify-between items-center">
+            <div>
+                <h1 id="module-title" class="text-2xl font-bold tracking-tighter text-blue-400 italic uppercase">Inventario</h1>
+                <p id="module-desc" class="text-[10px] text-slate-400 uppercase tracking-widest">Sincronizado</p>
             </div>
-        </div>
+            <button onclick="logout()" class="text-slate-500 text-xs font-bold uppercase border border-white/10 px-3 py-1 rounded-lg">Salir</button>
+        </header>
 
-        <button onclick="refreshData()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-2xl font-bold text-sm uppercase shadow-xl transition-all active:scale-95">
-            🔄 Actualizar Datos
-        </button>
-
-        <div class="space-y-3">
-            <h3 class="text-xs font-bold text-slate-500 uppercase px-2">Detalle de Registros</h3>
-            <div id="mobile-list" class="space-y-3">
-                <div class="p-10 text-center text-slate-600 animate-pulse">Cargando...</div>
+        <main class="p-4 space-y-6">
+            <div class="relative">
+                <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar producto..." 
+                    class="w-full bg-slate-900/80 border border-white/10 p-4 rounded-2xl text-sm glass focus:outline-none focus:border-blue-500">
             </div>
-        </div>
-    </main>
 
-    <nav class="fixed bottom-0 left-0 right-0 h-16 glass border-t border-white/10 flex justify-around items-center z-50">
-        <button onclick="switchModule('inventario')" id="btn-inventario" class="flex flex-col items-center justify-center w-full h-full tab-active">
-            <span class="text-xl">📦</span>
-            <span class="text-[9px] font-bold uppercase mt-1">Stock</span>
-        </button>
-        <button onclick="switchModule('cierre')" id="btn-cierre" class="flex flex-col items-center justify-center w-full h-full text-slate-500">
-            <span class="text-xl">📅</span>
-            <span class="text-[9px] font-bold uppercase mt-1">Cierre</span>
-        </button>
-    </nav>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="glass p-4 rounded-2xl border-l-4 border-blue-500">
+                    <p id="kpi-label-1" class="text-[9px] uppercase text-slate-500 font-bold mb-1">Total</p>
+                    <p id="kpi-val-1" class="text-xl font-bold">--</p>
+                </div>
+                <div class="glass p-4 rounded-2xl border-l-4 border-red-500">
+                    <p id="kpi-label-2" class="text-[9px] uppercase text-slate-500 font-bold mb-1">Alerta</p>
+                    <p id="kpi-val-2" class="text-xl font-bold">--</p>
+                </div>
+            </div>
+
+            <div class="glass p-4 rounded-2xl">
+                <div class="chart-container"><canvas id="mainChart"></canvas></div>
+            </div>
+
+            <button onclick="refreshData()" class="w-full py-4 bg-blue-600 rounded-2xl font-bold text-sm uppercase shadow-xl transition-all active:scale-95">🔄 Actualizar Datos</button>
+
+            <div id="mobile-list" class="space-y-3"></div>
+        </main>
+
+        <nav class="fixed bottom-0 left-0 right-0 h-16 glass border-t border-white/10 flex justify-around items-center z-50">
+            <button onclick="switchModule('inventario')" id="btn-inventario" class="flex flex-col items-center justify-center w-full h-full tab-active">
+                <span class="text-xl">📦</span>
+                <span class="text-[9px] font-bold uppercase mt-1">Stock</span>
+            </button>
+            <button onclick="switchModule('cierre')" id="btn-cierre" class="flex flex-col items-center justify-center w-full h-full text-slate-500">
+                <span class="text-xl">📅</span>
+                <span class="text-[9px] font-bold uppercase mt-1">Cierre</span>
+            </button>
+        </nav>
+    </div>
 
     <script>
+        // SEGURIDAD: Cambia estos valores, Evans
+        const AUTH = {
+            user: "evans",
+            pass: "1234"
+        };
+
         const ENDPOINTS = {
             inventario: "https://hook.us2.make.com/mi3g1y472l73g51refukafaej8uuspr4",
             cierre: "https://hook.us2.make.com/d5tivtytjjtyrxw1hhcp4vr5ijerc6b5"
@@ -82,6 +98,25 @@
         let rawData = [];
         let myChart = null;
         const palette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
+
+        function handleLogin() {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+            const err = document.getElementById('login-error');
+
+            if (u === AUTH.user && p === AUTH.pass) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                switchModule('inventario');
+            } else {
+                err.classList.remove('hidden');
+                setTimeout(() => err.classList.add('hidden'), 3000);
+            }
+        }
+
+        function logout() {
+            location.reload(); // Forma más segura de limpiar sesión
+        }
 
         async function refreshData() {
             document.getElementById('module-desc').innerText = "Conectando...";
@@ -93,9 +128,7 @@
                 rawData = Array.isArray(list) ? list : [list];
                 filterData();
                 document.getElementById('module-desc').innerText = "Actualizado " + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            } catch (e) {
-                document.getElementById('module-desc').innerText = "Error de red";
-            }
+            } catch (e) { document.getElementById('module-desc').innerText = "Error de red"; }
         }
 
         function filterData() {
@@ -121,25 +154,18 @@
                     const p = i.data || i.Record || i;
                     const stock = parseInt(p.Stock_Disponible || 0);
                     if (stock < 5) alerts++;
-                    
                     listContainer.innerHTML += `
-                        <div class="glass p-4 rounded-2xl flex justify-between items-center">
-                            <div>
-                                <p class="font-bold text-sm uppercase">${p.NOMBRE_PRODUCTO || 'S/N'}</p>
-                                <p class="text-blue-400 font-mono text-xs">RD$ ${p.PRECIO || 0}</p>
-                            </div>
+                        <div class="glass p-4 rounded-2xl flex justify-between items-center mb-2">
+                            <div><p class="font-bold text-sm uppercase">${p.NOMBRE_PRODUCTO || 'S/N'}</p><p class="text-blue-400 font-mono text-xs">RD$ ${p.PRECIO || 0}</p></div>
                             <span class="px-3 py-1 rounded-full text-[10px] font-bold border ${stock < 5 ? 'border-red-500 text-red-500 bg-red-500/10' : 'border-green-500 text-green-500 bg-green-500/10'}">${stock} UDS</span>
                         </div>`;
                 });
-                
                 document.getElementById('kpi-val-1').innerText = items.length;
                 document.getElementById('kpi-val-2').innerText = alerts;
                 updateChart(items.slice(0,6).map(x => (x.data?.NOMBRE_PRODUCTO || 'Item').substring(0,6)), items.slice(0,6).map(x => x.data?.Stock_Disponible || 0), 'bar');
-
             } else {
                 document.getElementById('kpi-label-1').innerText = "Venta Hoy";
                 document.getElementById('kpi-label-2').innerText = "Órdenes";
-
                 let agrupar = {};
                 items.forEach(i => {
                     const p = i.data || i.Record || i;
@@ -147,17 +173,12 @@
                     const monto = parseFloat(p.Monto_Total || 0);
                     totalVal += monto;
                     agrupar[nombre] = (agrupar[nombre] || 0) + monto;
-
                     listContainer.innerHTML += `
-                        <div class="glass p-4 rounded-2xl flex justify-between items-center">
-                            <div>
-                                <p class="font-bold text-sm italic">${nombre}</p>
-                                <p class="text-slate-500 text-[10px] uppercase">${p.Cantidad || 1} Unidades</p>
-                            </div>
+                        <div class="glass p-4 rounded-2xl flex justify-between items-center mb-2">
+                            <div><p class="font-bold text-sm italic">${nombre}</p><p class="text-slate-500 text-[10px] uppercase">${p.Cantidad || 1} Unidades</p></div>
                             <p class="text-green-400 font-bold font-mono">RD$ ${monto.toLocaleString()}</p>
                         </div>`;
                 });
-
                 document.getElementById('kpi-val-1').innerText = "RD$ " + Math.round(totalVal);
                 document.getElementById('kpi-val-2').innerText = items.length;
                 updateChart(Object.keys(agrupar).slice(0,5), Object.values(agrupar).slice(0,5), 'pie');
@@ -169,14 +190,11 @@
             if (myChart) myChart.destroy();
             myChart = new Chart(ctx, {
                 type: type,
-                data: {
-                    labels: labels,
-                    datasets: [{ data: data, backgroundColor: palette.map(c => c + 'CC'), borderColor: '#0f172a', borderWidth: 2 }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: type === 'pie', position: 'bottom', labels: { color: '#94a3b8', boxWidth: 10, font: {size: 8} } } },
+                data: { labels: labels, datasets: [{ data: data, backgroundColor: palette.map(c => c + 'CC'), borderColor: '#0f172a', borderWidth: 2 }] },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { display: type === 'pie', position: 'bottom', labels: { color: '#94a3b8', font: {size: 8} } } },
                     scales: type === 'bar' ? { y: { beginAtZero: true, ticks: { color: '#94a3b8', font: {size: 8} } }, x: { ticks: { color: '#94a3b8', font: {size: 8} } } } : {}
                 }
             });
@@ -186,11 +204,8 @@
             currentModule = mod;
             document.querySelectorAll('nav button').forEach(el => el.classList.remove('tab-active', 'text-slate-500'));
             document.getElementById('btn-' + mod).classList.add('tab-active');
-            document.getElementById('module-title').innerText = mod === 'inventario' ? 'Inventario' : 'Cierre Hoy';
             refreshData();
         }
-
-        window.onload = () => switchModule('inventario');
     </script>
 </body>
 </html>
