@@ -38,7 +38,7 @@
                         <h3 id="connection-status" class="text-lg font-bold text-yellow-500">Sincronizando...</h3>
                     </div>
                 </div>
-                <div class="glass p-5 text-center">
+                <div class="glass p-5 text-center text-center">
                     <p class="text-slate-400 text-xs uppercase tracking-tighter">Total Productos</p>
                     <h3 id="total-items" class="text-3xl font-bold text-white">0</h3>
                 </div>
@@ -85,12 +85,11 @@
                 const response = await fetch(MAKE_URL);
                 const data = await response.json();
                 
-                // Limpieza profunda para la estructura doble de Make
-                let rawList = data.productos || data;
-                let listado = Array.isArray(rawList) ? rawList : (rawList.data ? rawList.data : []);
-                
-                // Si viene un objeto único en lugar de array, lo convertimos
-                if (!Array.isArray(listado) && typeof listado === 'object') listado = [listado];
+                // Lógica ultra-flexible para encontrar la lista de productos
+                let listado = [];
+                if (data.productos) listado = data.productos;
+                else if (data.data) listado = data.data;
+                else if (Array.isArray(data)) listado = data;
 
                 statusEl.innerText = "Online";
                 statusEl.className = "text-lg font-bold text-green-400";
@@ -102,8 +101,9 @@
                 tableBody.innerHTML = '';
                 
                 listado.forEach(item => {
-                    // Acceder al contenido real sin importar la capa de Make
-                    const p = item.data || item.Record || item; 
+                    // Extraer los datos sin importar si están en item, item.data o item.Record
+                    const p = item.data || item.Record || item.value || item; 
+                    
                     const nombre = p.NOMBRE_PRODUCTO || "Producto";
                     const precio = parseFloat(p.PRECIO || 0).toLocaleString('en-US', {minimumFractionDigits: 2});
                     const stock = parseInt(p.Stock_Disponible || 0);
@@ -119,18 +119,18 @@
                             <td class="py-4 text-center">
                                 <span class="${stockClass} px-3 py-1 rounded-full text-xs font-bold border">${stock} uds</span>
                             </td>
-                            <td class="py-4 text-right px-2"><button class="bg-white/5 p-2 rounded-lg">✏️</button></td>
+                            <td class="py-4 text-right px-2"><button class="bg-white/5 hover:bg-white/10 p-2 rounded-lg transition">✏️</button></td>
                         </tr>`;
                 });
 
-                if(listado.length === 0) tableBody.innerHTML = '<tr><td colspan="5" class="py-20 text-center text-slate-500 italic">No hay productos para mostrar.</td></tr>';
+                if(listado.length === 0) tableBody.innerHTML = '<tr><td colspan="5" class="py-20 text-center text-slate-500 italic text-lg">No hay productos.</td></tr>';
 
             } catch (error) {
                 console.error("Error Compiuri:", error);
-                statusEl.innerText = "Offline";
-                statusEl.className = "text-lg font-bold text-red-500";
-                statusDot.className = "w-2.5 h-2.5 rounded-full bg-red-500";
-                tableBody.innerHTML = '<tr><td colspan="5" class="py-20 text-center text-red-400 font-bold">Error al sincronizar. Revisa Make.</td></tr>';
+                // Si falla, intentamos mantener el estado pero avisar del error de red
+                statusEl.innerText = "Error Sinc.";
+                statusEl.className = "text-lg font-bold text-yellow-500";
+                statusDot.className = "w-2.5 h-2.5 rounded-full bg-yellow-500";
             }
         }
         setInterval(cargarDatos, 30000);
