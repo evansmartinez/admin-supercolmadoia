@@ -2,73 +2,75 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COMPIURI OS - Business Intelligence</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>COMPIURI OS - Mobile Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; min-height: 100vh; overflow-x: hidden; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1rem; }
-        .sidebar-item.active { background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; color: #60a5fa; }
-        .chart-container { position: relative; height: 320px; width: 100%; display: flex; justify-content: center; }
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; min-height: 100vh; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .tab-active { color: #60a5fa; border-top: 3px solid #3b82f6; background: rgba(59, 130, 246, 0.1); }
+        .chart-container { position: relative; height: 280px; width: 100%; }
+        /* Evita el scroll horizontal molesto */
+        html, body { overflow-x: hidden; width: 100%; }
     </style>
 </head>
-<body class="flex">
-
-    <aside class="w-64 h-screen glass sticky top-0 flex flex-col p-6 z-50">
-        <div class="mb-10 flex items-center gap-3">
-            <img src="logoyofinalcorto.png" alt="Logo" class="w-10 h-10">
-            <div>
-                <h1 class="text-xl font-bold tracking-tighter text-blue-400 uppercase text-center">COMPIURI</h1>
-                <p class="text-[8px] text-slate-500 tracking-widest text-center uppercase">Admin OS</p>
-            </div>
+<body class="pb-20"> <header class="p-6 glass sticky top-0 z-50 flex justify-between items-center">
+        <div>
+            <h1 id="module-title" class="text-2xl font-bold tracking-tighter text-blue-400 italic uppercase">Inventario</h1>
+            <p id="module-desc" class="text-[10px] text-slate-400 uppercase tracking-widest">Sincronizado</p>
         </div>
-        <nav class="space-y-2 flex-grow">
-            <button onclick="switchModule('inventario')" id="btn-inventario" class="sidebar-item active w-full flex items-center gap-3 p-3 rounded-r-lg hover:bg-white/5 uppercase text-[10px] font-bold tracking-widest text-left">📦 Inventario</button>
-            <button onclick="switchModule('cierre')" id="btn-cierre" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-r-lg hover:bg-white/5 uppercase text-[10px] font-bold tracking-widest text-left">📅 Cierre del Día</button>
-        </nav>
-        <div class="mt-auto pt-6 border-t border-white/10 text-[10px] text-slate-500 italic text-center uppercase">Evans Martínez</div>
-    </aside>
+        <img src="logoyofinalcorto.png" alt="Logo" class="w-10 h-10 rounded-lg shadow-lg">
+    </header>
 
-    <main class="flex-grow p-8 max-w-[calc(100vw-256px)]">
-        <header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-            <div>
-                <h2 id="module-title" class="text-4xl font-bold tracking-tighter italic text-blue-100 uppercase italic">Inventario</h2>
-                <div class="flex items-center gap-2 mt-1">
-                    <span id="status-dot" class="w-2 h-2 rounded-full bg-green-500"></span>
-                    <p id="module-desc" class="text-slate-400 text-sm italic">Cargando...</p>
-                </div>
-            </div>
-            <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar..." class="w-full md:w-80 bg-slate-900/50 border border-white/10 p-3 rounded-xl text-sm glass focus:outline-none focus:border-blue-500">
-        </header>
+    <main class="p-4 space-y-6">
+        
+        <div class="relative">
+            <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar producto..." 
+                class="w-full bg-slate-900/80 border border-white/10 p-4 rounded-2xl text-sm glass focus:outline-none focus:border-blue-500 shadow-2xl">
+        </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
-            <div class="lg:col-span-4 space-y-4">
-                <div class="glass p-6 h-32 flex flex-col justify-center border-l-4 border-blue-500 text-center">
-                    <p id="kpi-label-1" class="text-[10px] uppercase text-slate-500 font-bold mb-1">Total</p>
-                    <p id="kpi-val-1" class="text-3xl font-bold">--</p>
-                </div>
-                <div class="glass p-6 h-32 flex flex-col justify-center border-l-4 border-red-500 text-center">
-                    <p id="kpi-label-2" class="text-[10px] uppercase text-slate-500 font-bold mb-1">Estado</p>
-                    <p id="kpi-val-2" class="text-3xl font-bold">--</p>
-                </div>
-                <button onclick="refreshData()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-2xl font-bold text-xs uppercase transition-all">Sincronizar</button>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="glass p-4 rounded-2xl border-l-4 border-blue-500">
+                <p id="kpi-label-1" class="text-[9px] uppercase text-slate-500 font-bold mb-1">Total</p>
+                <p id="kpi-val-1" class="text-xl font-bold">--</p>
             </div>
-            <div class="lg:col-span-8 glass p-6 h-[360px]">
-                <div class="chart-container"><canvas id="mainChart"></canvas></div>
+            <div class="glass p-4 rounded-2xl border-l-4 border-red-500">
+                <p id="kpi-label-2" class="text-[9px] uppercase text-slate-500 font-bold mb-1">Alerta</p>
+                <p id="kpi-val-2" class="text-xl font-bold">--</p>
             </div>
         </div>
 
-        <section class="glass overflow-hidden shadow-2xl">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead id="table-head" class="bg-white/5 text-[10px] uppercase tracking-widest text-slate-500 font-bold border-b border-white/10 italic"></thead>
-                    <tbody id="table-body" class="divide-y divide-white/5 text-sm uppercase"></tbody>
-                </table>
+        <div class="glass p-4 rounded-2xl">
+            <p class="text-[10px] uppercase text-slate-500 font-bold mb-4 text-center tracking-widest">Análisis Visual</p>
+            <div class="chart-container">
+                <canvas id="mainChart"></canvas>
             </div>
-        </section>
+        </div>
+
+        <button onclick="refreshData()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-2xl font-bold text-sm uppercase shadow-xl transition-all active:scale-95">
+            🔄 Actualizar Datos
+        </button>
+
+        <div class="space-y-3">
+            <h3 class="text-xs font-bold text-slate-500 uppercase px-2">Detalle de Registros</h3>
+            <div id="mobile-list" class="space-y-3">
+                <div class="p-10 text-center text-slate-600 animate-pulse">Cargando...</div>
+            </div>
+        </div>
     </main>
+
+    <nav class="fixed bottom-0 left-0 right-0 h-16 glass border-t border-white/10 flex justify-around items-center z-50">
+        <button onclick="switchModule('inventario')" id="btn-inventario" class="flex flex-col items-center justify-center w-full h-full tab-active">
+            <span class="text-xl">📦</span>
+            <span class="text-[9px] font-bold uppercase mt-1">Stock</span>
+        </button>
+        <button onclick="switchModule('cierre')" id="btn-cierre" class="flex flex-col items-center justify-center w-full h-full text-slate-500">
+            <span class="text-xl">📅</span>
+            <span class="text-[9px] font-bold uppercase mt-1">Cierre</span>
+        </button>
+    </nav>
 
     <script>
         const ENDPOINTS = {
@@ -82,26 +84,17 @@
         const palette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
 
         async function refreshData() {
-            document.getElementById('module-desc').innerText = "Consultando a Make...";
+            document.getElementById('module-desc').innerText = "Conectando...";
             try {
                 const response = await fetch(ENDPOINTS[currentModule]);
                 const json = await response.json();
-                
-                // Evans: Esta parte limpia los datos vengan como vengan
                 let list = json.productos || json.ventas || json.data || json;
                 if (list.data) list = list.data;
                 rawData = Array.isArray(list) ? list : [list];
-
-                if (rawData.length === 0 || (rawData.length === 1 && !rawData[0])) {
-                    document.getElementById('module-desc').innerText = "Sin registros hoy.";
-                } else {
-                    document.getElementById('module-desc').innerText = "Sincronizado con éxito.";
-                }
-
                 filterData();
+                document.getElementById('module-desc').innerText = "Actualizado " + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             } catch (e) {
-                document.getElementById('module-desc').innerText = "Error de respuesta del Webhook.";
-                renderUI([]);
+                document.getElementById('module-desc').innerText = "Error de red";
             }
         }
 
@@ -116,45 +109,58 @@
         }
 
         function renderUI(items) {
-            const tableBody = document.getElementById('table-body');
-            const tableHead = document.getElementById('table-head');
-            tableBody.innerHTML = "";
-            let labels = [], values = [], totalVal = 0;
+            const listContainer = document.getElementById('mobile-list');
+            listContainer.innerHTML = "";
+            let labels = [], values = [], totalVal = 0, alerts = 0;
 
             if (currentModule === 'inventario') {
-                tableHead.innerHTML = `<tr><th class="p-4">Producto</th><th class="p-4 text-center">Stock</th><th class="p-4 text-right">Precio</th></tr>`;
-                document.getElementById('kpi-label-1').innerText = "Items Totales";
-                document.getElementById('kpi-label-2').innerText = "Stock Crítico";
-                
-                let critico = 0;
+                document.getElementById('kpi-label-1').innerText = "Productos";
+                document.getElementById('kpi-label-2').innerText = "Críticos";
+
                 items.forEach(i => {
                     const p = i.data || i.Record || i;
                     const stock = parseInt(p.Stock_Disponible || 0);
-                    if (stock < 5) critico++;
-                    tableBody.innerHTML += `<tr class="border-b border-white/5"><td class="p-4 font-bold uppercase">${p.NOMBRE_PRODUCTO || 'S/N'}</td><td class="p-4 text-center"><span class="px-2 py-1 rounded-full border ${stock < 5 ? 'border-red-500 text-red-500 bg-red-500/10' : 'border-green-500 text-green-500 bg-green-500/10'} font-bold text-[10px]">${stock} UDS</span></td><td class="p-4 text-right text-blue-400 font-mono">RD$ ${p.PRECIO || 0}</td></tr>`;
+                    if (stock < 5) alerts++;
+                    
+                    listContainer.innerHTML += `
+                        <div class="glass p-4 rounded-2xl flex justify-between items-center">
+                            <div>
+                                <p class="font-bold text-sm uppercase">${p.NOMBRE_PRODUCTO || 'S/N'}</p>
+                                <p class="text-blue-400 font-mono text-xs">RD$ ${p.PRECIO || 0}</p>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-[10px] font-bold border ${stock < 5 ? 'border-red-500 text-red-500 bg-red-500/10' : 'border-green-500 text-green-500 bg-green-500/10'}">${stock} UDS</span>
+                        </div>`;
                 });
+                
                 document.getElementById('kpi-val-1').innerText = items.length;
-                document.getElementById('kpi-val-2').innerText = critico;
-                updateChart(items.slice(0,8).map(x => (x.data?.NOMBRE_PRODUCTO || 'Item').substring(0,8)), items.slice(0,8).map(x => x.data?.Stock_Disponible || 0), 'bar');
+                document.getElementById('kpi-val-2').innerText = alerts;
+                updateChart(items.slice(0,6).map(x => (x.data?.NOMBRE_PRODUCTO || 'Item').substring(0,6)), items.slice(0,6).map(x => x.data?.Stock_Disponible || 0), 'bar');
+
             } else {
-                tableHead.innerHTML = `<tr><th class="p-4">Producto</th><th class="p-4 text-center">Cant.</th><th class="p-4 text-right">Monto</th></tr>`;
-                document.getElementById('kpi-label-1').innerText = "Ingresos Hoy";
+                document.getElementById('kpi-label-1').innerText = "Venta Hoy";
                 document.getElementById('kpi-label-2').innerText = "Órdenes";
 
                 let agrupar = {};
                 items.forEach(i => {
                     const p = i.data || i.Record || i;
-                    if (!p.Nombre_Producto && !p.Producto) return;
-                    const nombre = p.Nombre_Producto || p.Producto;
+                    const nombre = p.Nombre_Producto || p.Producto || "Venta";
                     const monto = parseFloat(p.Monto_Total || 0);
                     totalVal += monto;
                     agrupar[nombre] = (agrupar[nombre] || 0) + monto;
-                    tableBody.innerHTML += `<tr class="border-b border-white/5"><td class="p-4 font-bold italic">${nombre}</td><td class="p-4 text-center text-slate-400">${p.Cantidad || 1}</td><td class="p-4 text-right text-green-400 font-mono font-bold">RD$ ${monto.toLocaleString()}</td></tr>`;
+
+                    listContainer.innerHTML += `
+                        <div class="glass p-4 rounded-2xl flex justify-between items-center">
+                            <div>
+                                <p class="font-bold text-sm italic">${nombre}</p>
+                                <p class="text-slate-500 text-[10px] uppercase">${p.Cantidad || 1} Unidades</p>
+                            </div>
+                            <p class="text-green-400 font-bold font-mono">RD$ ${monto.toLocaleString()}</p>
+                        </div>`;
                 });
 
-                document.getElementById('kpi-val-1').innerText = "RD$ " + totalVal.toLocaleString();
+                document.getElementById('kpi-val-1').innerText = "RD$ " + Math.round(totalVal);
                 document.getElementById('kpi-val-2').innerText = items.length;
-                updateChart(Object.keys(agrupar), Object.values(agrupar), 'pie');
+                updateChart(Object.keys(agrupar).slice(0,5), Object.values(agrupar).slice(0,5), 'pie');
             }
         }
 
@@ -170,16 +176,17 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: type === 'pie', position: 'right', labels: { color: '#94a3b8' } } },
-                    scales: type === 'bar' ? { y: { beginAtZero: true, ticks: { color: '#94a3b8' } }, x: { ticks: { color: '#94a3b8' } } } : {}
+                    plugins: { legend: { display: type === 'pie', position: 'bottom', labels: { color: '#94a3b8', boxWidth: 10, font: {size: 8} } } },
+                    scales: type === 'bar' ? { y: { beginAtZero: true, ticks: { color: '#94a3b8', font: {size: 8} } }, x: { ticks: { color: '#94a3b8', font: {size: 8} } } } : {}
                 }
             });
         }
 
         function switchModule(mod) {
             currentModule = mod;
-            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('btn-' + mod).classList.add('active');
+            document.querySelectorAll('nav button').forEach(el => el.classList.remove('tab-active', 'text-slate-500'));
+            document.getElementById('btn-' + mod).classList.add('tab-active');
+            document.getElementById('module-title').innerText = mod === 'inventario' ? 'Inventario' : 'Cierre Hoy';
             refreshData();
         }
 
