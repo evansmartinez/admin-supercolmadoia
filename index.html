@@ -22,7 +22,7 @@
                     <img src="logoyofinalcorto.png" alt="Logo Compiuri" class="w-20 h-auto mx-auto">
                 </div>
                 <h1 class="text-3xl font-bold tracking-wider text-blue-400 uppercase">COMPIURI</h1>
-                <p class="text-xs text-slate-400 uppercase tracking-widest mt-1">Colmado La Grada</p>
+                <p class="text-xs text-slate-400 uppercase tracking-widest mt-1 italic">Colmado La Grada</p>
             </div>
             <a href="#" class="glass-card p-3 rounded-lg flex items-center gap-3 text-blue-300 font-bold">📦 Inventario</a>
             <a href="#" class="p-3 rounded-lg flex items-center gap-3 text-slate-300 hover:text-white transition">💰 Ventas</a>
@@ -31,26 +31,26 @@
 
         <main class="lg:col-span-9 space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="glass p-5 flex flex-col justify-center">
-                    <p class="text-slate-400 text-xs uppercase tracking-tighter font-semibold">Estado de Conexión</p>
+                <div class="glass p-5 flex flex-col justify-center h-28">
+                    <p class="text-slate-400 text-xs uppercase tracking-tighter">Estado de Conexión</p>
                     <div class="flex items-center gap-2 mt-1">
                         <div id="status-dot" class="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
-                        <h3 id="connection-status" class="text-lg font-bold text-yellow-500 uppercase">Sincronizando</h3>
+                        <h3 id="connection-status" class="text-lg font-bold text-yellow-500 uppercase tracking-tight">Sincronizando</h3>
                     </div>
                 </div>
-                <div class="glass p-5 text-center">
-                    <p class="text-slate-400 text-xs uppercase tracking-tighter font-semibold">Total Productos</p>
-                    <h3 id="total-items" class="text-3xl font-bold text-white">0</h3>
+                <div class="glass p-5 text-center h-28">
+                    <p class="text-slate-400 text-xs uppercase tracking-tighter">Total Productos</p>
+                    <h3 id="total-items" class="text-3xl font-bold text-white mt-1">0</h3>
                 </div>
-                <div class="glass p-5 text-center">
-                    <p class="text-slate-400 text-xs uppercase tracking-tighter font-semibold">Última Actualización</p>
-                    <h3 id="last-update" class="text-lg font-mono text-slate-300">--:--:--</h3>
+                <div class="glass p-5 text-center h-28">
+                    <p class="text-slate-400 text-xs uppercase tracking-tighter">Última Actualización</p>
+                    <h3 id="last-update" class="text-lg font-mono text-slate-300 mt-2">--:--:--</h3>
                 </div>
             </div>
 
             <section class="glass p-6">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-semibold uppercase tracking-tight text-blue-100">Panel de Inventario Real</h2>
+                    <h2 class="text-xl font-semibold uppercase tracking-tight text-blue-100 italic">Inventario Real</h2>
                     <button onclick="cargarDatos()" class="bg-blue-600 hover:bg-blue-500 px-5 py-2 rounded-lg text-sm font-bold transition shadow-lg shadow-blue-900/40">Refrescar</button>
                 </div>
                 <div class="overflow-x-auto">
@@ -59,13 +59,13 @@
                             <tr class="border-b border-white/10 text-slate-400 text-xs uppercase tracking-widest">
                                 <th class="pb-4 px-2">Producto</th>
                                 <th class="pb-4 text-center">Categoría</th>
-                                <th class="pb-4 text-center">Precio (RD$)</th>
+                                <th class="pb-4 text-center">Precio</th>
                                 <th class="pb-4 text-center">Stock</th>
                                 <th class="pb-4 text-right px-2">Acción</th>
                             </tr>
                         </thead>
                         <tbody id="inventory-body" class="text-sm">
-                            <tr><td colspan="5" class="py-20 text-center text-slate-400 italic">Esperando datos de Compiuri...</td></tr>
+                            <tr><td colspan="5" class="py-20 text-center text-slate-400 italic">Esperando a Compiuri...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -76,6 +76,16 @@
     <script>
         const MAKE_URL = "https://hook.us2.make.com/mi3g1y472l73g51refukafaej8uuspr4";
 
+        function buscarArray(obj) {
+            if (Array.isArray(obj)) return obj;
+            if (typeof obj !== 'object' || obj === null) return null;
+            for (let key in obj) {
+                let res = buscarArray(obj[key]);
+                if (res) return res;
+            }
+            return null;
+        }
+
         async function cargarDatos() {
             const statusEl = document.getElementById('connection-status');
             const statusDot = document.getElementById('status-dot');
@@ -83,27 +93,14 @@
 
             try {
                 const response = await fetch(MAKE_URL);
+                if (!response.ok) throw new Error();
                 const data = await response.json();
                 
-                // --- LÓGICA DE FUERZA BRUTA PARA DETECTAR LA LISTA ---
-                let listado = [];
-                
-                // Caso 1: Los datos vienen en data.productos.data (lo que vi en tu captura)
-                if (data.productos && data.productos.data) {
-                    listado = Array.isArray(data.productos.data) ? data.productos.data : [data.productos.data];
-                } 
-                // Caso 2: Vienen en data.productos directamente
-                else if (data.productos) {
-                    listado = Array.isArray(data.productos) ? data.productos : [data.productos];
-                }
-                // Caso 3: Vienen en la raíz como Array
-                else if (Array.isArray(data)) {
-                    listado = data;
-                }
-                
-                // UI: Marcar como Online
+                let listado = buscarArray(data) || [];
+                if (!Array.isArray(listado) && typeof listado === 'object') listado = [listado];
+
                 statusEl.innerText = "Online";
-                statusEl.className = "text-lg font-bold text-green-400 uppercase";
+                statusEl.className = "text-lg font-bold text-green-400 uppercase tracking-tight";
                 statusDot.className = "w-2.5 h-2.5 rounded-full bg-green-400 pulse-green";
                 
                 document.getElementById('total-items').innerText = listado.length;
@@ -112,44 +109,34 @@
                 tableBody.innerHTML = '';
                 
                 listado.forEach(item => {
-                    // Limpieza: Buscar los campos reales dentro del objeto
-                    const p = item.data || item.Record || item; 
-                    
+                    const p = item.data || item.Record || item.value || item; 
                     const nombre = p.NOMBRE_PRODUCTO || "Producto";
-                    const precioNum = parseFloat(p.PRECIO || 0);
-                    const precio = precioNum.toLocaleString('en-US', {minimumFractionDigits: 2});
+                    const precio = parseFloat(p.PRECIO || 0).toLocaleString('en-US', {minimumFractionDigits: 2});
                     const stock = parseInt(p.Stock_Disponible || 0);
-                    const cat = p.CATEGORIA || "General";
+                    const cat = p.CATEGORIA || "Gral";
 
                     const stockClass = stock <= 5 ? 'text-red-400 bg-red-500/10 border-red-500/20' : 'text-green-400 bg-green-500/10 border-green-500/20';
                     
                     tableBody.innerHTML += `
-                        <tr class="border-b border-white/5 hover:bg-white/5 transition group">
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition">
                             <td class="py-4 px-2 font-semibold text-slate-100 uppercase tracking-tight">${nombre}</td>
-                            <td class="py-4 text-center text-slate-400 text-xs uppercase italic tracking-widest">${cat}</td>
+                            <td class="py-4 text-center text-slate-400 text-xs italic uppercase">${cat}</td>
                             <td class="py-4 text-center font-mono font-bold text-blue-300">RD$ ${precio}</td>
                             <td class="py-4 text-center">
                                 <span class="${stockClass} px-3 py-1 rounded-full text-xs font-bold border">${stock} uds</span>
                             </td>
-                            <td class="py-4 text-right px-2">
-                                <button class="bg-white/5 hover:bg-white/10 p-2 rounded-lg transition border border-white/10">✏️</button>
-                            </td>
+                            <td class="py-4 text-right px-2"><button class="bg-white/5 p-2 rounded-lg">✏️</button></td>
                         </tr>`;
                 });
 
-                if(listado.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="5" class="py-20 text-center text-slate-500 italic">No se encontraron productos en el Data Store.</td></tr>';
-                }
+                if(listado.length === 0) tableBody.innerHTML = '<tr><td colspan="5" class="py-20 text-center text-slate-500 italic">Data Store vacío.</td></tr>';
 
             } catch (error) {
-                console.error("Error en Compiuri Sync:", error);
-                statusEl.innerText = "Error Sinc.";
-                statusEl.className = "text-lg font-bold text-yellow-500 uppercase";
-                statusDot.className = "w-2.5 h-2.5 rounded-full bg-yellow-500";
+                statusEl.innerText = "Offline";
+                statusEl.className = "text-lg font-bold text-red-500 uppercase tracking-tight";
+                statusDot.className = "w-2.5 h-2.5 rounded-full bg-red-500";
             }
         }
-
-        // Refrescar cada 30 segundos
         setInterval(cargarDatos, 30000);
         window.onload = cargarDatos;
     </script>
