@@ -14,7 +14,6 @@
         .sidebar-item.active { background: rgba(59, 130, 246, 0.1); border-left-color: #3b82f6; color: #60a5fa; }
         .chart-container { position: relative; height: 320px; width: 100%; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .category-btn.active { background: #3b82f6; border-color: #60a5fa; }
     </style>
 </head>
 <body class="flex">
@@ -23,7 +22,7 @@
         <div class="mb-10 flex items-center gap-3">
             <img src="logoyofinalcorto.png" alt="Logo" class="w-10 h-10">
             <div>
-                <h1 class="text-xl font-bold tracking-tighter text-blue-400">COMPIURI</h1>
+                <h1 class="text-xl font-bold tracking-tighter text-blue-400 text-center">COMPIURI</h1>
                 <p class="text-[10px] uppercase text-slate-500 tracking-widest text-center text-[8px]">Admin OS</p>
             </div>
         </div>
@@ -34,9 +33,6 @@
             <button onclick="switchModule('cierre')" id="btn-cierre" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-r-lg hover:bg-white/5 uppercase text-[10px] font-bold tracking-widest">
                 <span>📅</span> Cierre del Día
             </button>
-            <button onclick="switchModule('precios')" id="btn-precios" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-r-lg hover:bg-white/5 uppercase text-[10px] font-bold tracking-widest">
-                <span>📈</span> Precios
-            </button>
         </nav>
         <div class="mt-auto pt-6 border-t border-white/10 text-[10px] text-slate-500 italic text-center">Evans Martínez</div>
     </aside>
@@ -44,14 +40,14 @@
     <main class="flex-grow p-8 max-w-[calc(100vw-256px)]">
         <header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
             <div>
-                <h2 id="module-title" class="text-4xl font-bold tracking-tighter italic text-blue-100 uppercase">Inventario</h2>
+                <h2 id="module-title" class="text-4xl font-bold tracking-tighter italic text-blue-100 uppercase italic">Inventario</h2>
                 <div class="flex items-center gap-2 mt-1">
                     <span id="status-dot" class="w-2 h-2 rounded-full bg-green-500"></span>
-                    <p id="module-desc" class="text-slate-400 text-sm">Cargando datos...</p>
+                    <p id="module-desc" class="text-slate-400 text-sm italic">Conectado</p>
                 </div>
             </div>
             <div class="relative w-full md:w-80">
-                <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar..." class="w-full bg-slate-900/50 border border-white/10 p-3 rounded-xl text-sm glass focus:outline-none focus:border-blue-500">
+                <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar..." class="w-full bg-slate-900/50 border border-white/10 p-3 rounded-xl text-sm glass focus:outline-none focus:border-blue-500 shadow-xl">
             </div>
         </header>
 
@@ -59,19 +55,19 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
             <div class="lg:col-span-4 space-y-4">
-                <div class="glass p-6 h-32 flex flex-col justify-center border-l-4 border-blue-500">
-                    <p id="kpi-label-1" class="text-[10px] uppercase text-slate-500 font-bold mb-1 tracking-widest">Métrica 1</p>
-                    <p id="kpi-val-1" class="text-3xl font-bold">--</p>
+                <div class="glass p-6 h-32 flex flex-col justify-center border-l-4 border-blue-500 shadow-xl">
+                    <p id="kpi-label-1" class="text-[10px] uppercase text-slate-500 font-bold mb-1 tracking-widest text-center">Total Productos</p>
+                    <p id="kpi-val-1" class="text-3xl font-bold text-center">--</p>
                 </div>
-                <div id="kpi-box-2" class="glass p-6 h-32 flex flex-col justify-center border-l-4 border-red-500">
-                    <p id="kpi-label-2" class="text-[10px] uppercase text-slate-500 font-bold mb-1 tracking-widest">Métrica 2</p>
-                    <p id="kpi-val-2" class="text-3xl font-bold">--</p>
+                <div id="kpi-box-2" class="glass p-6 h-32 flex flex-col justify-center border-l-4 border-red-500 shadow-xl">
+                    <p id="kpi-label-2" class="text-[10px] uppercase text-slate-500 font-bold mb-1 tracking-widest text-center">Stock Crítico</p>
+                    <p id="kpi-val-2" class="text-3xl font-bold text-center">--</p>
                 </div>
                 <button onclick="refreshCurrentModule()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-2xl font-bold text-xs uppercase shadow-xl transition-all">🔄 Sincronizar</button>
             </div>
 
             <div class="lg:col-span-8 glass p-6 h-[360px] overflow-hidden">
-                <p class="text-[10px] uppercase text-slate-500 font-bold mb-4 tracking-widest" id="chart-title">Visualización de Datos</p>
+                <p class="text-[10px] uppercase text-slate-500 font-bold mb-4 tracking-widest text-center" id="chart-title">Visualización de Datos</p>
                 <div class="chart-container"><canvas id="mainChart"></canvas></div>
             </div>
         </div>
@@ -79,18 +75,18 @@
         <section class="glass overflow-hidden shadow-2xl">
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
-                    <thead id="table-head" class="bg-white/5 text-[10px] uppercase tracking-widest text-slate-500 font-bold border-b border-white/10"></thead>
-                    <tbody id="table-body" class="divide-y divide-white/5 text-sm"></tbody>
+                    <thead id="table-head" class="bg-white/5 text-[10px] uppercase tracking-widest text-slate-500 font-bold border-b border-white/10 italic"></thead>
+                    <tbody id="table-body" class="divide-y divide-white/5 text-sm uppercase"></tbody>
                 </table>
             </div>
         </section>
     </main>
 
     <script>
+        // Evans: Ambos usan el mismo link por ahora, pero el código manejará los datos de forma distinta
         const ENDPOINTS = {
             inventario: "https://hook.us2.make.com/mi3g1y472l73g51refukafaej8uuspr4",
-            cierre: "https://hook.us2.make.com/mi3g1y472l73g51refukafaej8uuspr4", // Ajustar si es otro webhook
-            precios: "https://hook.us2.make.com/mi3g1y472l73g51refukafaej8uuspr4"
+            cierre: "https://hook.us2.make.com/mi3g1y472l73g51refukafaej8uuspr4"
         };
 
         let currentModule = 'inventario';
@@ -103,31 +99,34 @@
             currentModule = mod;
             document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
             document.getElementById(`btn-${mod}`).classList.add('active');
-            document.getElementById('module-title').innerText = mod.toUpperCase();
+            document.getElementById('module-title').innerText = mod === 'inventario' ? 'INVENTARIO' : 'CIERRE DEL DÍA';
             document.getElementById('category-bar').style.display = mod === 'inventario' ? 'flex' : 'none';
             refreshCurrentModule();
         }
 
         async function refreshCurrentModule() {
-            document.getElementById('module-desc').innerText = "Actualizando...";
             try {
                 const response = await fetch(ENDPOINTS[currentModule]);
                 const data = await response.json();
-                allData = data.productos || data.ventas || data.data || data;
+                
+                // Limpieza profunda de la respuesta de Make
+                let rawList = data.productos || data.data || data;
+                if (rawList.data) rawList = rawList.data;
+                allData = Array.isArray(rawList) ? rawList : [rawList];
+
                 if(currentModule === 'inventario') updateCategoryButtons();
                 filterData();
-                document.getElementById('module-desc').innerText = "Sincronizado";
-            } catch (e) { 
-                console.error("Error cargando", e); 
-                document.getElementById('module-desc').innerText = "Error de conexión";
-            }
+            } catch (e) { console.error("Error Sync", e); }
         }
 
         function updateCategoryButtons() {
-            const categories = [...new Set(allData.map(i => (i.data?.CATEGORIA || i.CATEGORIA || 'General')))];
-            let html = `<button onclick="filterByCategory('TODOS')" class="px-4 py-2 glass rounded-full text-[10px] font-bold uppercase ${selectedCategory === 'TODOS' ? 'bg-blue-600 active' : ''}">Todo</button>`;
+            const categories = [...new Set(allData.map(i => {
+                const p = i.data || i.Record || i;
+                return p.CATEGORIA || 'General';
+            }))];
+            let html = `<button onclick="filterByCategory('TODOS')" class="px-4 py-2 glass rounded-full text-[10px] font-bold uppercase ${selectedCategory === 'TODOS' ? 'bg-blue-600' : ''}">Todo</button>`;
             categories.forEach(cat => {
-                html += `<button onclick="filterByCategory('${cat}')" class="px-4 py-2 glass rounded-full text-[10px] font-bold uppercase ${selectedCategory === cat ? 'bg-blue-600 active' : ''}">${cat}</button>`;
+                html += `<button onclick="filterByCategory('${cat}')" class="px-4 py-2 glass rounded-full text-[10px] font-bold uppercase ${selectedCategory === cat ? 'bg-blue-600' : ''}">${cat}</button>`;
             });
             document.getElementById('category-bar').innerHTML = html;
         }
@@ -137,9 +136,9 @@
         function filterData() {
             const search = document.getElementById('main-search').value.toLowerCase();
             const filtered = allData.filter(item => {
-                const p = item.data || item;
+                const p = item.data || item.Record || item;
                 const catMatch = currentModule !== 'inventario' || selectedCategory === 'TODOS' || (p.CATEGORIA || 'General') === selectedCategory;
-                const nameMatch = (p.NOMBRE_PRODUCTO || p.Producto || p.Cliente || "").toLowerCase().includes(search);
+                const nameMatch = (p.NOMBRE_PRODUCTO || p.Producto || "").toLowerCase().includes(search);
                 return catMatch && nameMatch;
             });
             renderUI(filtered);
@@ -157,40 +156,48 @@
                 document.getElementById('kpi-label-2').innerText = "Stock Crítico";
                 
                 let stockBajo = 0;
-                // Ordenamos para el gráfico: los de menor stock primero
-                const chartItems = [...items].sort((a,b) => (a.data?.Stock_Disponible || 0) - (b.data?.Stock_Disponible || 0)).slice(0, 10);
+                // Ordenamos para el gráfico: Stock bajo primero
+                const chartItems = [...items].sort((a,b) => {
+                    const valA = (a.data?.Stock_Disponible || a.Stock_Disponible || 0);
+                    const valB = (b.data?.Stock_Disponible || b.Stock_Disponible || 0);
+                    return valA - valB;
+                }).slice(0, 10);
                 
                 chartItems.forEach((i, idx) => {
-                    const p = i.data || i;
-                    labels.push((p.NOMBRE_PRODUCTO || "").substring(0, 10));
-                    chartValues.push(Math.max(1, p.Stock_Disponible || 0));
+                    const p = i.data || i.Record || i;
+                    labels.push((p.NOMBRE_PRODUCTO || "---").substring(0, 10));
+                    chartValues.push(Math.max(0, parseInt(p.Stock_Disponible || 0)));
                     colors.push(palette[idx % palette.length]);
                 });
 
                 items.forEach(i => {
-                    const p = i.data || i;
-                    if (p.Stock_Disponible < 5) stockBajo++;
-                    tableBody.innerHTML += `<tr class="border-b border-white/5"><td class="p-4 font-bold uppercase">${p.NOMBRE_PRODUCTO}</td><td class="p-4 text-center text-blue-400 font-mono">RD$ ${p.PRECIO}</td><td class="p-4 text-center"><span class="px-2 py-1 rounded-full border ${p.Stock_Disponible < 5 ? 'border-red-500 text-red-500 bg-red-500/10' : 'border-green-500 text-green-500 bg-green-500/10'} text-[10px] font-bold">${p.Stock_Disponible} UDS</span></td></tr>`;
+                    const p = i.data || i.Record || i;
+                    const stock = parseInt(p.Stock_Disponible || 0);
+                    if (stock < 5) stockBajo++;
+                    tableBody.innerHTML += `<tr class="border-b border-white/5"><td class="p-4 font-bold">${p.NOMBRE_PRODUCTO}</td><td class="p-4 text-center text-blue-400 font-mono">RD$ ${p.PRECIO}</td><td class="p-4 text-center"><span class="px-2 py-1 rounded-full border ${stock < 5 ? 'border-red-500 text-red-500 bg-red-500/10' : 'border-green-500 text-green-500 bg-green-500/10'} text-[10px] font-bold">${stock} UDS</span></td></tr>`;
                 });
 
                 document.getElementById('kpi-val-1').innerText = items.length;
                 document.getElementById('kpi-val-2').innerText = stockBajo;
-                updateChart(labels, chartValues, colors, 'logarithmic', 'bar');
+                updateChart(labels, chartValues, colors, 'logarithmic');
 
-            } else if (currentModule === 'cierre') {
-                tableHead.innerHTML = `<tr><th class="p-4 uppercase">Producto</th><th class="p-4 text-center">Cant.</th><th class="p-4 text-right">Total</th></tr>`;
+            } else {
+                // MODULO CIERRE
+                tableHead.innerHTML = `<tr><th class="p-4 uppercase">Producto</th><th class="p-4 text-center">Cant.</th><th class="p-4 text-right">Monto</th></tr>`;
                 document.getElementById('kpi-label-1').innerText = "Ingresos Hoy";
-                document.getElementById('kpi-label-2').innerText = "Ventas Realizadas";
+                document.getElementById('kpi-label-2').innerText = "Ventas Totales";
                 
                 let totalDinero = 0;
                 let resumen = {};
+                
                 items.forEach(i => {
-                    const v = i.data || i;
+                    const v = i.data || i.Record || i;
                     const nombre = v.NOMBRE_PRODUCTO || v.Producto || "Varios";
-                    const monto = parseFloat(v.MONTO_TOTAL || v.Total || 0);
+                    // Si no hay MONTO_TOTAL, calculamos Cantidad * Precio
+                    const monto = parseFloat(v.MONTO_TOTAL || v.Total || v.PRECIO || 0);
                     totalDinero += monto;
                     resumen[nombre] = (resumen[nombre] || 0) + monto;
-                    tableBody.innerHTML += `<tr class="border-b border-white/5"><td class="p-4 uppercase font-bold">${nombre}</td><td class="p-4 text-center text-slate-400">${v.CANTIDAD || 1}</td><td class="p-4 text-right text-green-400 font-mono font-bold">RD$ ${monto.toLocaleString()}</td></tr>`;
+                    tableBody.innerHTML += `<tr class="border-b border-white/5"><td class="p-4 font-bold uppercase">${nombre}</td><td class="p-4 text-center text-slate-400">1</td><td class="p-4 text-right text-green-400 font-mono font-bold">RD$ ${monto.toLocaleString()}</td></tr>`;
                 });
 
                 labels = Object.keys(resumen);
@@ -199,15 +206,15 @@
                 
                 document.getElementById('kpi-val-1').innerText = "RD$ " + totalDinero.toLocaleString();
                 document.getElementById('kpi-val-2').innerText = items.length;
-                updateChart(labels, chartValues, colors, 'linear', 'bar', 'y');
+                updateChart(labels, chartValues, colors, 'linear');
             }
         }
 
-        function updateChart(labels, data, colors, yType, chartType, indexAxis = 'x') {
+        function updateChart(labels, data, colors, yType) {
             const ctx = document.getElementById('mainChart').getContext('2d');
             if (myChart) myChart.destroy();
             myChart = new Chart(ctx, {
-                type: chartType,
+                type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [{
@@ -219,12 +226,16 @@
                     }]
                 },
                 options: {
-                    indexAxis: indexAxis,
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { type: yType, beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                        y: { 
+                            type: yType, 
+                            beginAtZero: true, 
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#94a3b8' } 
+                        },
                         x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 } } }
                     }
                 }
