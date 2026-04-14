@@ -20,17 +20,13 @@
         <div class="mb-10 flex items-center gap-3">
             <img src="logoyofinalcorto.png" alt="Logo" class="w-10 h-10">
             <div>
-                <h1 class="text-xl font-bold tracking-tighter text-blue-400 uppercase">COMPIURI</h1>
+                <h1 class="text-xl font-bold tracking-tighter text-blue-400 uppercase text-center">COMPIURI</h1>
                 <p class="text-[8px] text-slate-500 tracking-widest text-center uppercase">Admin OS</p>
             </div>
         </div>
         <nav class="space-y-2 flex-grow">
-            <button onclick="switchModule('inventario')" id="btn-inventario" class="sidebar-item active w-full flex items-center gap-3 p-3 rounded-r-lg hover:bg-white/5 uppercase text-[10px] font-bold tracking-widest text-left">
-                <span>📦</span> Inventario
-            </button>
-            <button onclick="switchModule('cierre')" id="btn-cierre" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-r-lg hover:bg-white/5 uppercase text-[10px] font-bold tracking-widest text-left">
-                <span>📅</span> Cierre del Día
-            </button>
+            <button onclick="switchModule('inventario')" id="btn-inventario" class="sidebar-item active w-full flex items-center gap-3 p-3 rounded-r-lg hover:bg-white/5 uppercase text-[10px] font-bold tracking-widest text-left">📦 Inventario</button>
+            <button onclick="switchModule('cierre')" id="btn-cierre" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-r-lg hover:bg-white/5 uppercase text-[10px] font-bold tracking-widest text-left">📅 Cierre del Día</button>
         </nav>
         <div class="mt-auto pt-6 border-t border-white/10 text-[10px] text-slate-500 italic text-center uppercase">Evans Martínez</div>
     </aside>
@@ -38,30 +34,28 @@
     <main class="flex-grow p-8 max-w-[calc(100vw-256px)]">
         <header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
             <div>
-                <h2 id="module-title" class="text-4xl font-bold tracking-tighter italic text-blue-100 uppercase italic">Cierre del Día</h2>
+                <h2 id="module-title" class="text-4xl font-bold tracking-tighter italic text-blue-100 uppercase italic">Inventario</h2>
                 <div class="flex items-center gap-2 mt-1">
                     <span id="status-dot" class="w-2 h-2 rounded-full bg-green-500"></span>
-                    <p id="module-desc" class="text-slate-400 text-sm italic">Sincronizando...</p>
+                    <p id="module-desc" class="text-slate-400 text-sm italic">Cargando...</p>
                 </div>
             </div>
-            <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar..." class="w-full md:w-80 bg-slate-900/50 border border-white/10 p-3 rounded-xl text-sm glass focus:outline-none focus:border-blue-500 shadow-xl">
+            <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar..." class="w-full md:w-80 bg-slate-900/50 border border-white/10 p-3 rounded-xl text-sm glass focus:outline-none focus:border-blue-500">
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
             <div class="lg:col-span-4 space-y-4">
-                <div class="glass p-6 h-32 flex flex-col justify-center border-l-4 border-blue-500 shadow-xl text-center">
-                    <p id="kpi-label-1" class="text-[10px] uppercase text-slate-500 font-bold mb-1 tracking-widest">Ingresos Hoy</p>
-                    <p id="kpi-val-1" class="text-3xl font-bold">RD$ 0</p>
+                <div class="glass p-6 h-32 flex flex-col justify-center border-l-4 border-blue-500 text-center">
+                    <p id="kpi-label-1" class="text-[10px] uppercase text-slate-500 font-bold mb-1">Total</p>
+                    <p id="kpi-val-1" class="text-3xl font-bold">--</p>
                 </div>
-                <div class="glass p-6 h-32 flex flex-col justify-center border-l-4 border-red-500 shadow-xl text-center">
-                    <p id="kpi-label-2" class="text-[10px] uppercase text-slate-500 font-bold mb-1 tracking-widest">Órdenes</p>
-                    <p id="kpi-val-2" class="text-3xl font-bold">0</p>
+                <div class="glass p-6 h-32 flex flex-col justify-center border-l-4 border-red-500 text-center">
+                    <p id="kpi-label-2" class="text-[10px] uppercase text-slate-500 font-bold mb-1">Estado</p>
+                    <p id="kpi-val-2" class="text-3xl font-bold">--</p>
                 </div>
-                <button onclick="refreshData()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-2xl font-bold text-xs uppercase shadow-xl transition-all">🔄 Reintentar Conexión</button>
+                <button onclick="refreshData()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-2xl font-bold text-xs uppercase transition-all">Sincronizar</button>
             </div>
-
             <div class="lg:col-span-8 glass p-6 h-[360px]">
-                <p class="text-[10px] uppercase text-slate-500 font-bold mb-4 tracking-widest text-center" id="chart-title">Gráfico de Ventas</p>
                 <div class="chart-container"><canvas id="mainChart"></canvas></div>
             </div>
         </div>
@@ -85,35 +79,29 @@
         let currentModule = 'inventario';
         let rawData = [];
         let myChart = null;
-        const palette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316', '#84cc16', '#a855f7'];
+        const palette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
 
         async function refreshData() {
-            document.getElementById('module-desc').innerText = "Conectando...";
+            document.getElementById('module-desc').innerText = "Consultando a Make...";
             try {
                 const response = await fetch(ENDPOINTS[currentModule]);
-                if (!response.ok) throw new Error('Respuesta no válida');
-                
                 const json = await response.json();
                 
-                // DESEMPAQUETAR DATOS: Buscamos en cualquier parte del JSON
-                let extracted = json.productos || json.ventas || json.data || json;
-                if (extracted.data) extracted = extracted.data;
-                
-                rawData = Array.isArray(extracted) ? extracted : (extracted ? [extracted] : []);
+                // Evans: Esta parte limpia los datos vengan como vengan
+                let list = json.productos || json.ventas || json.data || json;
+                if (list.data) list = list.data;
+                rawData = Array.isArray(list) ? list : [list];
+
+                if (rawData.length === 0 || (rawData.length === 1 && !rawData[0])) {
+                    document.getElementById('module-desc').innerText = "Sin registros hoy.";
+                } else {
+                    document.getElementById('module-desc').innerText = "Sincronizado con éxito.";
+                }
 
                 filterData();
-                document.getElementById('module-desc').innerText = "Actualizado: " + new Date().toLocaleTimeString();
-                document.getElementById('status-dot').className = "w-2 h-2 rounded-full bg-green-500";
             } catch (e) {
-                console.error("Error de conexión:", e);
-                document.getElementById('module-desc').innerText = "Sin datos en el histórico";
-                document.getElementById('status-dot').className = "w-2 h-2 rounded-full bg-red-500";
-                
-                // Si falla el cierre, mostramos tabla vacía pero evitamos el error visual
-                if (currentModule === 'cierre') {
-                    rawData = [];
-                    renderUI([]);
-                }
+                document.getElementById('module-desc').innerText = "Error de respuesta del Webhook.";
+                renderUI([]);
             }
         }
 
@@ -131,88 +119,59 @@
             const tableBody = document.getElementById('table-body');
             const tableHead = document.getElementById('table-head');
             tableBody.innerHTML = "";
-            let labels = [], values = [], colors = [];
+            let labels = [], values = [], totalVal = 0;
 
             if (currentModule === 'inventario') {
-                tableHead.innerHTML = `<tr><th class="p-4 uppercase">Producto</th><th class="p-4 text-center">Stock</th><th class="p-4 text-right">Precio</th></tr>`;
-                document.getElementById('kpi-label-1').innerText = "Total Productos";
+                tableHead.innerHTML = `<tr><th class="p-4">Producto</th><th class="p-4 text-center">Stock</th><th class="p-4 text-right">Precio</th></tr>`;
+                document.getElementById('kpi-label-1').innerText = "Items Totales";
                 document.getElementById('kpi-label-2').innerText = "Stock Crítico";
                 
-                let alerts = 0;
-                const chartItems = [...items].sort((a,b) => (a.data?.Stock_Disponible || 0) - (b.data?.Stock_Disponible || 0)).slice(0, 10);
-                
-                chartItems.forEach((i, idx) => {
-                    const p = i.data || i.Record || i;
-                    labels.push((p.NOMBRE_PRODUCTO || "S/N").substring(0, 10));
-                    values.push(Math.max(1, parseInt(p.Stock_Disponible || 0)));
-                    colors.push(palette[idx % palette.length]);
-                });
-
+                let critico = 0;
                 items.forEach(i => {
                     const p = i.data || i.Record || i;
                     const stock = parseInt(p.Stock_Disponible || 0);
-                    if (stock < 5) alerts++;
-                    tableBody.innerHTML += `<tr class="border-b border-white/5 hover:bg-white/5"><td class="p-4 font-bold uppercase">${p.NOMBRE_PRODUCTO || '---'}</td><td class="p-4 text-center"><span class="px-2 py-1 rounded-full border ${stock < 5 ? 'border-red-500 text-red-500 bg-red-500/10' : 'border-green-500 text-green-500 bg-green-500/10'} text-[10px] font-bold">${stock} UDS</span></td><td class="p-4 text-right text-blue-400 font-mono">RD$ ${p.PRECIO || 0}</td></tr>`;
+                    if (stock < 5) critico++;
+                    tableBody.innerHTML += `<tr class="border-b border-white/5"><td class="p-4 font-bold uppercase">${p.NOMBRE_PRODUCTO || 'S/N'}</td><td class="p-4 text-center"><span class="px-2 py-1 rounded-full border ${stock < 5 ? 'border-red-500 text-red-500 bg-red-500/10' : 'border-green-500 text-green-500 bg-green-500/10'} font-bold text-[10px]">${stock} UDS</span></td><td class="p-4 text-right text-blue-400 font-mono">RD$ ${p.PRECIO || 0}</td></tr>`;
                 });
                 document.getElementById('kpi-val-1').innerText = items.length;
-                document.getElementById('kpi-val-2').innerText = alerts;
-                updateChart(labels, values, colors, 'bar', 'logarithmic');
-
+                document.getElementById('kpi-val-2').innerText = critico;
+                updateChart(items.slice(0,8).map(x => (x.data?.NOMBRE_PRODUCTO || 'Item').substring(0,8)), items.slice(0,8).map(x => x.data?.Stock_Disponible || 0), 'bar');
             } else {
-                tableHead.innerHTML = `<tr><th class="p-4 uppercase">Venta</th><th class="p-4 text-center">Cant.</th><th class="p-4 text-right">Monto</th></tr>`;
+                tableHead.innerHTML = `<tr><th class="p-4">Producto</th><th class="p-4 text-center">Cant.</th><th class="p-4 text-right">Monto</th></tr>`;
                 document.getElementById('kpi-label-1').innerText = "Ingresos Hoy";
-                document.getElementById('kpi-label-2').innerText = "Órdenes Totales";
-                
-                let totalVenta = 0;
+                document.getElementById('kpi-label-2').innerText = "Órdenes";
+
                 let agrupar = {};
-
-                if (items.length === 0) {
-                    tableBody.innerHTML = `<tr><td colspan="3" class="p-20 text-center text-slate-500 italic">No hay ventas registradas en Historico_Ventas</td></tr>`;
-                }
-
                 items.forEach(i => {
                     const p = i.data || i.Record || i;
-                    const nombre = p.Nombre_Producto || p.Producto || "Venta";
-                    const monto = parseFloat(p.Monto_Total || p.Total || 0);
-                    totalVenta += monto;
+                    if (!p.Nombre_Producto && !p.Producto) return;
+                    const nombre = p.Nombre_Producto || p.Producto;
+                    const monto = parseFloat(p.Monto_Total || 0);
+                    totalVal += monto;
                     agrupar[nombre] = (agrupar[nombre] || 0) + monto;
-                    tableBody.innerHTML += `<tr class="border-b border-white/5 hover:bg-white/5"><td class="p-4 font-bold italic">${nombre}</td><td class="p-4 text-center text-slate-400">${p.Cantidad || 1}</td><td class="p-4 text-right text-green-400 font-mono font-bold">RD$ ${monto.toLocaleString()}</td></tr>`;
+                    tableBody.innerHTML += `<tr class="border-b border-white/5"><td class="p-4 font-bold italic">${nombre}</td><td class="p-4 text-center text-slate-400">${p.Cantidad || 1}</td><td class="p-4 text-right text-green-400 font-mono font-bold">RD$ ${monto.toLocaleString()}</td></tr>`;
                 });
 
-                labels = Object.keys(agrupar);
-                values = Object.values(agrupar);
-                colors = labels.map((_, idx) => palette[idx % palette.length]);
-                
-                document.getElementById('kpi-val-1').innerText = "RD$ " + totalVenta.toLocaleString();
+                document.getElementById('kpi-val-1').innerText = "RD$ " + totalVal.toLocaleString();
                 document.getElementById('kpi-val-2').innerText = items.length;
-                updateChart(labels, values, colors, 'pie', 'linear');
+                updateChart(Object.keys(agrupar), Object.values(agrupar), 'pie');
             }
         }
 
-        function updateChart(labels, data, colors, type, yScale) {
+        function updateChart(labels, data, type) {
             const ctx = document.getElementById('mainChart').getContext('2d');
             if (myChart) myChart.destroy();
             myChart = new Chart(ctx, {
                 type: type,
                 data: {
                     labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: colors.map(c => c + 'CC'),
-                        borderColor: '#0f172a',
-                        borderWidth: 2
-                    }]
+                    datasets: [{ data: data, backgroundColor: palette.map(c => c + 'CC'), borderColor: '#0f172a', borderWidth: 2 }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: type === 'pie', position: 'right', labels: { color: '#94a3b8', font: { size: 10 } } }
-                    },
-                    scales: type !== 'pie' ? {
-                        y: { type: yScale, beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-                        x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 } } }
-                    } : {}
+                    plugins: { legend: { display: type === 'pie', position: 'right', labels: { color: '#94a3b8' } } },
+                    scales: type === 'bar' ? { y: { beginAtZero: true, ticks: { color: '#94a3b8' } }, x: { ticks: { color: '#94a3b8' } } } : {}
                 }
             });
         }
@@ -221,7 +180,6 @@
             currentModule = mod;
             document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
             document.getElementById('btn-' + mod).classList.add('active');
-            document.getElementById('module-title').innerText = mod === 'inventario' ? 'Inventario' : 'Cierre del Día';
             refreshData();
         }
 
