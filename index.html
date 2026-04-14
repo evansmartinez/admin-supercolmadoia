@@ -55,7 +55,7 @@
         <header class="p-6 glass sticky top-0 z-50 flex justify-between items-center border-b border-white/5">
             <div>
                 <h1 id="module-title" class="text-2xl font-bold tracking-tighter text-blue-400 italic uppercase">Inventario</h1>
-                <p id="module-desc" class="text-[9px] text-slate-500 uppercase">Estado: Conectado</p>
+                <p id="module-desc" class="text-[9px] text-slate-500 uppercase font-bold text-green-400">Estado: Conectado</p>
             </div>
             <div class="flex gap-2">
                 <button onclick="logout()" class="text-slate-500 text-[10px] font-bold uppercase px-3 py-2 border border-white/10 rounded-xl">Salir</button>
@@ -97,25 +97,20 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN DE ENDPOINTS Y ACCESO
         const AUTH = { user: "evans", pass: "1234" };
-        
-        // EVANS: AQUÍ ESTÁN TUS TRES URLS REALES. YA RESTAURÉ LA DE GUARDAR.
         const ENDPOINTS = {
             inventario: "https://hook.us2.make.com/mi3g1y472l73g51refukafaej8uuspr4",
             cierre: "https://hook.us2.make.com/d5tivtytjjtyrxw1hhcp4vr5ijerc6b5",
-            guardar: "https://hook.us2.make.com/6aqam5i2qha0wxl6sfh8ee72mu6iin4w" 
+            guardar: "https://hook.us2.make.com/6aqam5i2qha0wxl6sfh8ee72mu6iin4w"
         };
 
         let currentModule = 'inventario', rawData = [], myChart = null;
         const palette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
 
-        // LÓGICA DE SESIÓN
         function handleLogin() {
             const u = document.getElementById('user').value;
             const p = document.getElementById('pass').value;
             const err = document.getElementById('login-error');
-
             if (u === AUTH.user && p === AUTH.pass) {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
@@ -129,9 +124,9 @@
         function logout() { location.reload(); }
         function toggleModal() { document.getElementById('modal-registro').classList.toggle('hidden'); }
 
-        // ENVÍO DE DATOS A MAKE CON LÓGICA DE SUMA
         async function enviarAMake() {
             const btn = document.getElementById('btn-enviar');
+            // MEJORA 1: Limpieza profunda del nombre ingresado
             const nomOriginal = document.getElementById('reg-nombre').value.trim().toUpperCase();
             const precioInput = parseFloat(document.getElementById('reg-precio').value);
             const cantInput = parseInt(document.getElementById('reg-stock').value) || 0;
@@ -139,10 +134,10 @@
 
             if(!nomOriginal || isNaN(precioInput)) return alert("El Nombre y Precio son requeridos");
 
-            // Buscar si el producto ya existe para sumarle el stock
+            // MEJORA 2: Limpieza profunda de los nombres en la base de datos para asegurar el match
             const productoExistente = rawData.find(i => {
                 const p = i.data || i.Record || i;
-                const nombreEnLista = (p.NOMBRE_PRODUCTO || p.Nombre_Producto || p.Producto || p.nombre || "").toString().toUpperCase();
+                const nombreEnLista = (p.NOMBRE_PRODUCTO || p.Nombre_Producto || p.Producto || p.nombre || "").toString().trim().toUpperCase();
                 return nombreEnLista === nomOriginal;
             });
 
@@ -161,7 +156,7 @@
                 categoria: catInput
             };
 
-            btn.innerText = "PROCESANDO...";
+            btn.innerText = "PROCESANDO MAKE...";
             btn.disabled = true;
 
             try {
@@ -171,25 +166,37 @@
                     body: JSON.stringify(data)
                 });
                 
-                // EVANS: AÑADÍ ESTA CONDICIÓN PARA QUE TE AVISE SI MAKE RECHAZA EL ENVÍO
                 if(res.ok) {
-                    alert("Stock actualizado: " + nomOriginal + " ahora tiene " + stockFinal + " unidades.");
+                    alert("✅ ¡Éxito! " + nomOriginal + " actualizado a " + stockFinal + " unidades.");
                     toggleModal();
-                    refreshData(); // Recargar la lista
+                    
+                    // MEJORA 3: EL FRENO DE MANO (Race Condition Fix)
+                    // Esperamos 2 segundos antes de descargar la lista de Make para darle tiempo a guardar
+                    document.getElementById('module-desc').innerText = "Guardando en Make...";
+                    document.getElementById('module-desc').className = "text-[9px] text-yellow-400 uppercase font-bold animate-pulse";
+                    
+                    setTimeout(() => {
+                        refreshData();
+                        // Limpiamos los campos para el próximo producto
+                        document.getElementById('reg-nombre').value = "";
+                        document.getElementById('reg-precio').value = "";
+                        document.getElementById('reg-stock').value = "";
+                        document.getElementById('reg-cat').value = "";
+                    }, 2000); 
+
                 } else {
-                    alert("Error: Make.com rechazó la conexión. Revisa que tu escenario esté en ON.");
+                    alert("Error: Make.com rechazó la conexión.");
                 }
             } catch (e) { 
-                alert("Fallo de red: El servidor de Make no responde en este momento."); 
+                alert("Fallo de red: El servidor de Make no responde."); 
             } finally { 
                 btn.innerText = "Guardar en Sistema"; 
                 btn.disabled = false; 
             }
         }
 
-        // FUNCIÓN DE BÚSQUEDA RESTAURADA
         function filterData() {
-            const search = document.getElementById('main-search').value.toLowerCase();
+            const search = document.getElementById('main-search').value.toLowerCase().trim();
             const filtered = rawData.filter(i => {
                 const p = i.data || i.Record || i;
                 const nom = (p.Nombre_Producto || p.NOMBRE_PRODUCTO || p.Producto || p.nombre || "").toString().toLowerCase();
@@ -198,9 +205,10 @@
             renderUI(filtered);
         }
 
-        // OBTENER DATOS DESDE MAKE
         async function refreshData() {
             document.getElementById('module-desc').innerText = "Sincronizando...";
+            document.getElementById('module-desc').className = "text-[9px] text-yellow-400 uppercase font-bold animate-pulse";
+            
             try {
                 const response = await fetch(ENDPOINTS[currentModule]);
                 const json = await response.json();
@@ -208,14 +216,15 @@
                 if (list.data) list = list.data;
                 rawData = Array.isArray(list) ? list : [list];
                 
-                filterData(); // Usa el filtro por si hay algo escrito en el buscador
-                document.getElementById('module-desc').innerText = "Actualizado: " + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                filterData(); 
+                document.getElementById('module-desc').innerText = "Estado: Conectado";
+                document.getElementById('module-desc').className = "text-[9px] text-green-400 uppercase font-bold";
             } catch (e) { 
                 document.getElementById('module-desc').innerText = "Error de conexión"; 
+                document.getElementById('module-desc').className = "text-[9px] text-red-500 uppercase font-bold";
             }
         }
 
-        // RENDERIZAR INTERFAZ (STOCK Y CIERRE RESTAURADO COMPLETAMENTE)
         function renderUI(items) {
             const list = document.getElementById('mobile-list');
             list.innerHTML = "";
@@ -243,7 +252,6 @@
                 updateChart(items.slice(0,6).map(x => (x.data?.NOMBRE_PRODUCTO || x.nombre || 'Item').substring(0,6)), items.slice(0,6).map(x => x.data?.Stock_Disponible || x.stock || 0), 'bar');
             
             } else {
-                // LÓGICA DE CIERRE DEL DÍA
                 document.getElementById('kpi-label-1').innerText = "Caja Hoy";
                 document.getElementById('kpi-label-2').innerText = "Órdenes Totales";
                 let agrupar = {};
@@ -271,32 +279,22 @@
             }
         }
 
-        // GENERADOR DE GRÁFICOS
         function updateChart(labels, data, type) {
             const ctx = document.getElementById('mainChart').getContext('2d');
             if (myChart) myChart.destroy();
             myChart = new Chart(ctx, {
                 type: type,
-                data: { 
-                    labels: labels, 
-                    datasets: [{ data: data, backgroundColor: palette.map(c => c + 'CC'), borderColor: '#0f172a', borderWidth: 2 }] 
-                },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    plugins: { legend: { display: type === 'pie', position: 'bottom', labels: { color: '#94a3b8', font: {size: 8} } } },
-                    scales: type === 'bar' ? { y: { beginAtZero: true, ticks: { color: '#94a3b8', font: {size: 8} } }, x: { ticks: { color: '#94a3b8', font: {size: 8} } } } : {}
-                }
+                data: { labels: labels, datasets: [{ data: data, backgroundColor: palette.map(c => c + 'CC'), borderColor: '#0f172a', borderWidth: 2 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: type === 'pie', position: 'bottom', labels: { color: '#94a3b8', font: {size: 8} } } } }
             });
         }
 
-        // CAMBIO DE PESTAÑAS
         function switchModule(mod) {
             currentModule = mod;
             document.querySelectorAll('nav button').forEach(el => el.classList.remove('tab-active', 'text-slate-500'));
             document.getElementById('btn-' + mod).classList.add('tab-active');
             document.getElementById('module-title').innerText = mod === 'inventario' ? 'Inventario' : 'Cierre Hoy';
-            refreshData(); // Al cambiar, refrescamos los datos para pintar la pantalla correcta
+            refreshData();
         }
     </script>
 </body>
