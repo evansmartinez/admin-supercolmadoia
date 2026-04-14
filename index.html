@@ -12,7 +12,6 @@
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .sidebar-item { transition: all 0.3s ease; border-left: 4px solid transparent; }
         .sidebar-item.active { background: rgba(59, 130, 246, 0.1); border-left-color: #3b82f6; color: #60a5fa; }
-        /* Evita que el gráfico desborde */
         .chart-container { position: relative; height: 280px; width: 100%; }
     </style>
 </head>
@@ -23,14 +22,14 @@
             <img src="logoyofinalcorto.png" alt="Logo" class="w-10 h-10">
             <div>
                 <h1 class="text-xl font-bold tracking-tighter text-blue-400">COMPIURI</h1>
-                <p class="text-[10px] uppercase text-slate-500 tracking-widest text-center">Admin OS</p>
+                <p class="text-[10px] uppercase text-slate-500 tracking-widest text-center text-xs">Admin OS</p>
             </div>
         </div>
         <nav class="space-y-2 flex-grow">
-            <button onclick="switchModule('inventario')" id="btn-inventario" class="sidebar-item active w-full flex items-center gap-3 p-3 rounded-r-lg hover:bg-white/5 uppercase text-xs font-bold tracking-widest">
+            <button onclick="switchModule('inventario')" id="btn-inventario" class="sidebar-item active w-full flex items-center gap-3 p-3 rounded-r-lg hover:bg-white/5 uppercase text-xs font-bold tracking-widest text-left">
                 <span>📦</span> Inventario
             </button>
-            <button onclick="switchModule('ventas')" id="btn-ventas" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-r-lg hover:bg-white/5 uppercase text-xs font-bold tracking-widest">
+            <button onclick="switchModule('ventas')" id="btn-ventas" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-r-lg hover:bg-white/5 uppercase text-xs font-bold tracking-widest text-left">
                 <span>💰</span> Ventas
             </button>
         </nav>
@@ -43,33 +42,33 @@
         
         <header class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
             <div>
-                <h2 id="module-title" class="text-4xl font-bold tracking-tighter italic">Inventario</h2>
+                <h2 id="module-title" class="text-4xl font-bold tracking-tighter italic text-blue-100">Inventario</h2>
                 <div class="flex items-center gap-2 mt-1">
                     <span id="status-dot" class="w-2 h-2 rounded-full bg-green-500"></span>
                     <p id="module-desc" class="text-slate-400 text-sm">Monitoreo de activos.</p>
                 </div>
             </div>
             <div class="relative w-full md:w-80">
-                <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar producto..." 
+                <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar..." 
                     class="w-full bg-slate-900/50 border border-white/10 p-3 rounded-xl text-sm glass focus:outline-none focus:border-blue-500 shadow-xl">
             </div>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8 items-start">
             <div class="lg:col-span-4 space-y-4">
-                <div class="glass p-6 rounded-2xl h-32 flex flex-col justify-center">
-                    <p id="kpi-label-1" class="text-[10px] uppercase text-slate-500 font-bold mb-1 tracking-widest text-center">Total Productos</p>
-                    <p id="kpi-val-1" class="text-3xl font-bold text-center">0</p>
+                <div class="glass p-6 rounded-2xl h-32 flex flex-col justify-center border-l-4 border-blue-500">
+                    <p id="kpi-label-1" class="text-[10px] uppercase text-slate-500 font-bold mb-1 tracking-widest">Total Productos</p>
+                    <p id="kpi-val-1" class="text-3xl font-bold">0</p>
                 </div>
-                <div id="kpi-box-2" class="glass p-6 rounded-2xl h-32 flex flex-col justify-center border-b-2 border-blue-500">
-                    <p id="kpi-label-2" class="text-[10px] uppercase text-slate-500 font-bold mb-1 tracking-widest text-center">Stock Crítico</p>
-                    <p id="kpi-val-2" class="text-3xl font-bold text-center">0</p>
+                <div id="kpi-box-2" class="glass p-6 rounded-2xl h-32 flex flex-col justify-center border-l-4 border-red-500">
+                    <p id="kpi-label-2" class="text-[10px] uppercase text-slate-500 font-bold mb-1 tracking-widest">Stock Crítico</p>
+                    <p id="kpi-val-2" class="text-3xl font-bold">0</p>
                 </div>
                 <button onclick="refreshCurrentModule()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-2xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-blue-900/40 transition-all">🔄 Sincronizar</button>
             </div>
 
             <div class="lg:col-span-8 glass p-6 rounded-2xl h-[344px] overflow-hidden">
-                <p class="text-[10px] uppercase text-slate-500 font-bold mb-4 tracking-widest" id="chart-title">Análisis Visual</p>
+                <p class="text-[10px] uppercase text-slate-500 font-bold mb-4 tracking-widest" id="chart-title">Análisis Visual de Inventario</p>
                 <div class="chart-container">
                     <canvas id="mainChart"></canvas>
                 </div>
@@ -81,7 +80,7 @@
                 <table class="w-full text-left">
                     <thead id="table-head" class="bg-white/5 text-[10px] uppercase tracking-widest text-slate-500 font-bold"></thead>
                     <tbody id="table-body" class="divide-y divide-white/5 text-sm">
-                        <tr><td colspan="4" class="p-20 text-center animate-pulse uppercase tracking-widest text-xs text-slate-600">Conectando...</td></tr>
+                        <tr><td colspan="4" class="p-20 text-center animate-pulse">Cargando datos...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -98,7 +97,7 @@
         let allData = [];
         let myChart = null;
 
-        function initChart(labels, data, label) {
+        function initChart(labels, data, label, colors) {
             const ctx = document.getElementById('mainChart').getContext('2d');
             if (myChart) myChart.destroy();
             
@@ -109,19 +108,35 @@
                     datasets: [{
                         label: label,
                         data: data,
-                        backgroundColor: 'rgba(59, 130, 246, 0.4)',
-                        borderColor: '#3b82f6',
-                        borderWidth: 2,
+                        backgroundColor: colors,
+                        borderColor: colors.map(c => c.replace('0.4', '1')),
+                        borderWidth: 1,
                         borderRadius: 5
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false, // CLAVE: No dejar que el gráfico crezca solo
-                    plugins: { legend: { display: false } },
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 13 },
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return currentModule === 'inventario' 
+                                        ? ` Stock: ${context.parsed.y} Unidades` 
+                                        : ` Total: RD$ ${context.parsed.y.toLocaleString()}`;
+                                }
+                            }
+                        }
+                    },
                     scales: {
-                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 9 } } },
-                        x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 }, maxRotation: 45, minRotation: 45 } }
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
                     }
                 }
             });
@@ -131,18 +146,6 @@
             currentModule = mod;
             document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
             document.getElementById(`btn-${mod}`).classList.add('active');
-            
-            const titles = {
-                inventario: ["Inventario", "Monitoreo de activos.", "Total Productos", "Stock Crítico", "Top 7 - Menos Unidades"],
-                ventas: ["Ventas", "Control de ingresos.", "Total Vendido", "Órdenes", "Ventas por Cliente"]
-            };
-            
-            document.getElementById('module-title').innerText = titles[mod][0];
-            document.getElementById('module-desc').innerText = titles[mod][1];
-            document.getElementById('kpi-label-1').innerText = titles[mod][2];
-            document.getElementById('kpi-label-2').innerText = titles[mod][3];
-            document.getElementById('chart-title').innerText = titles[mod][4];
-
             refreshCurrentModule();
         }
 
@@ -171,14 +174,21 @@
             const tableBody = document.getElementById('table-body');
             const tableHead = document.getElementById('table-head');
             tableBody.innerHTML = "";
-            let labels = [], chartData = [];
+            let labels = [], chartData = [], colors = [];
 
             if (currentModule === 'inventario') {
-                tableHead.innerHTML = `<tr><th class="p-4 uppercase">Producto</th><th class="p-4 text-center">Categoría</th><th class="p-4 text-center">Precio</th><th class="p-4 text-center">Stock</th></tr>`;
-                const sortedForChart = [...items].sort((a,b) => (a.data?.Stock_Disponible || a.Stock_Disponible) - (b.data?.Stock_Disponible || b.Stock_Disponible)).slice(0, 7);
-                labels = sortedForChart.map(i => (i.data?.NOMBRE_PRODUCTO || i.NOMBRE_PRODUCTO || "").substring(0, 8));
-                chartData = sortedForChart.map(i => i.data?.Stock_Disponible || i.Stock_Disponible || 0);
+                tableHead.innerHTML = `<tr><th class="p-4">Producto</th><th class="p-4 text-center">Categoría</th><th class="p-4 text-center">Precio</th><th class="p-4 text-center">Stock</th></tr>`;
                 
+                // Top 7 stock bajo
+                const sorted = [...items].sort((a,b) => (a.data?.Stock_Disponible || a.Stock_Disponible) - (b.data?.Stock_Disponible || b.Stock_Disponible)).slice(0, 7);
+                
+                sorted.forEach(i => {
+                    const p = i.data || i;
+                    labels.push((p.NOMBRE_PRODUCTO || "").substring(0, 10));
+                    chartData.push(p.Stock_Disponible || 0);
+                    colors.push(p.Stock_Disponible < 5 ? 'rgba(239, 68, 68, 0.4)' : 'rgba(59, 130, 246, 0.4)');
+                });
+
                 let stockBajo = 0;
                 items.forEach(item => {
                     const p = item.data || item.Record || item;
@@ -187,34 +197,34 @@
                     tableBody.innerHTML += `
                         <tr class="hover:bg-white/5 transition-colors border-b border-white/5">
                             <td class="p-4 font-bold uppercase text-slate-100">${p.NOMBRE_PRODUCTO}</td>
-                            <td class="p-4 text-center text-[10px] text-slate-500 font-bold uppercase italic">${p.CATEGORIA || 'Gral'}</td>
-                            <td class="p-4 text-center font-mono text-blue-400 font-bold">RD$ ${parseFloat(p.PRECIO || 0).toLocaleString()}</td>
+                            <td class="p-4 text-center text-xs text-slate-500 italic uppercase">${p.CATEGORIA || 'Gral'}</td>
+                            <td class="p-4 text-center font-mono text-blue-400">RD$ ${parseFloat(p.PRECIO || 0).toLocaleString()}</td>
                             <td class="p-4 text-center"><span class="px-3 py-1 rounded-full text-[10px] font-bold border ${stock < 5 ? 'border-red-500 text-red-500 bg-red-500/10' : 'border-green-500 text-green-500 bg-green-500/10'}">${stock} UDS</span></td>
                         </tr>`;
                 });
                 document.getElementById('kpi-val-1').innerText = items.length;
                 document.getElementById('kpi-val-2').innerText = stockBajo;
-                initChart(labels, chartData, 'Unidades');
+                initChart(labels, chartData, 'Unidades', colors);
             } else {
-                tableHead.innerHTML = `<tr><th class="p-4 uppercase">Cliente</th><th class="p-4 text-center">Detalle</th><th class="p-4 text-right">Monto</th></tr>`;
+                tableHead.innerHTML = `<tr><th class="p-4">Cliente</th><th class="p-4 text-center">Detalle</th><th class="p-4 text-right">Monto</th></tr>`;
                 let total = 0;
-                const resumenVentas = {};
+                const resume = {};
                 items.forEach(item => {
                     const v = item.data || item.Record || item;
                     const monto = parseFloat(v.Monto || v.Total || 0);
                     total += monto;
-                    const nombre = v.Cliente || "Final";
-                    resumenVentas[nombre] = (resumenVentas[nombre] || 0) + monto;
-                    tableBody.innerHTML += `
-                        <tr class="hover:bg-white/5 border-b border-white/5"><td class="p-4 font-bold uppercase">${nombre}</td><td class="p-4 text-center text-xs text-slate-500 italic">${v.Detalle || '---'}</td><td class="p-4 text-right font-mono font-bold text-green-400">RD$ ${monto.toLocaleString()}</td></tr>`;
+                    const name = v.Cliente || "Final";
+                    resume[name] = (resume[name] || 0) + monto;
+                    tableBody.innerHTML += `<tr class="hover:bg-white/5 border-b border-white/5"><td class="p-4 font-bold uppercase">${name}</td><td class="p-4 text-center text-xs text-slate-500 italic">${v.Detalle || '---'}</td><td class="p-4 text-right font-mono font-bold text-green-400">RD$ ${monto.toLocaleString()}</td></tr>`;
                 });
-                labels = Object.keys(resumenVentas); chartData = Object.values(resumenVentas);
+                labels = Object.keys(resume);
+                chartData = Object.values(resume);
+                const chartColors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'].map(c => c + '66');
+                initChart(labels, chartData, 'Ventas RD$', chartColors);
                 document.getElementById('kpi-val-1').innerText = "RD$ " + total.toLocaleString();
                 document.getElementById('kpi-val-2').innerText = items.length;
-                initChart(labels, chartData, 'Ventas RD$');
             }
         }
-
         window.onload = () => refreshCurrentModule();
     </script>
 </body>
