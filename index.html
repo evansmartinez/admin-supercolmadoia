@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>COMPIURI OS - Admin Pro</title>
+    <title>COMPIURI OS - Admin Business</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -12,139 +12,200 @@
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .tab-active { color: #60a5fa; border-top: 3px solid #3b82f6; background: rgba(59, 130, 246, 0.1); }
         .chart-container { position: relative; height: 260px; width: 100%; }
-        #login-screen, #modal-registro { position: fixed; inset: 0; z-index: 100; background: rgba(15, 23, 42, 0.9); display: flex; align-items: center; justify-content: center; padding: 20px; }
+        #login-screen, #modal-registro { position: fixed; inset: 0; z-index: 100; background: rgba(15, 23, 42, 0.95); display: flex; align-items: center; justify-content: center; padding: 20px; }
         .hidden { display: none !important; }
         input { transition: all 0.2s; }
-        input:focus { border-color: #3b82f6 !important; box-shadow: 0 0 10px rgba(59, 130, 246, 0.3); }
+        input:focus { border-color: #3b82f6 !important; outline: none; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); }
+        /* Animación suave para las tarjetas */
+        .card-entry { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="pb-20">
 
     <div id="login-screen">
-        <div class="glass p-8 rounded-3xl w-full max-sm shadow-2xl text-center space-y-6">
-            <h2 class="text-2xl font-bold text-blue-400 italic">COMPIURI OS</h2>
-            <div class="space-y-4">
-                <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl text-sm">
-                <input type="password" id="pass" placeholder="Contraseña" class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl text-sm">
-                <button onclick="handleLogin()" class="w-full py-4 bg-blue-600 rounded-xl font-bold uppercase text-xs">Entrar</button>
+        <div class="glass p-8 rounded-3xl w-full max-w-sm shadow-2xl text-center space-y-6">
+            <div class="mb-4">
+                <h2 class="text-3xl font-bold text-blue-400 italic tracking-tighter">COMPIURI OS</h2>
+                <p class="text-[10px] text-slate-500 uppercase tracking-[0.2em] mt-1">Sistemas de Automatización</p>
             </div>
+            <div class="space-y-4 text-left">
+                <label class="text-[10px] uppercase font-bold text-slate-400 ml-2">Usuario</label>
+                <input type="text" id="user" class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl text-sm mb-2">
+                <label class="text-[10px] uppercase font-bold text-slate-400 ml-2">Contraseña</label>
+                <input type="password" id="pass" class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl text-sm">
+                <button onclick="handleLogin()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold uppercase text-xs shadow-lg transition-all active:scale-95">Acceder al Dashboard</button>
+            </div>
+            <p class="text-[9px] text-slate-600 uppercase">Evans Martínez © 2026</p>
         </div>
     </div>
 
     <div id="modal-registro" class="hidden">
-        <div class="glass p-6 rounded-3xl w-full max-w-sm space-y-4 relative">
-            <button onclick="toggleModal()" class="absolute top-4 right-4 text-slate-400">✕</button>
-            <h3 class="text-xl font-bold text-blue-400">Nuevo / Actualizar</h3>
+        <div class="glass p-6 rounded-3xl w-full max-w-sm space-y-4 relative shadow-2xl border-t-2 border-blue-500">
+            <button onclick="toggleModal()" class="absolute top-4 right-4 text-slate-400 text-xl">✕</button>
+            <h3 class="text-xl font-bold text-blue-100 italic">GESTIÓN DE STOCK</h3>
             <div class="space-y-3">
-                <input type="text" id="reg-nombre" placeholder="Nombre del Producto" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm">
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="number" id="reg-precio" placeholder="Precio RD$" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm">
-                    <input type="number" id="reg-stock" placeholder="Stock" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm">
+                <div>
+                    <label class="text-[9px] uppercase text-slate-500 font-bold ml-1">Nombre del Producto</label>
+                    <input type="text" id="reg-nombre" placeholder="Ej: CERVEZA PRESIDENTE" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm uppercase">
                 </div>
-                <input type="text" id="reg-cat" placeholder="Categoría (Ej: Bebidas)" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm">
-                <button onclick="enviarAMake()" id="btn-enviar" class="w-full py-4 bg-green-600 rounded-xl font-bold uppercase text-xs shadow-lg">Guardar en Inventario</button>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[9px] uppercase text-slate-500 font-bold ml-1">Precio RD$</label>
+                        <input type="number" id="reg-precio" placeholder="0.00" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <label class="text-[9px] uppercase text-slate-500 font-bold ml-1">Cantidad</label>
+                        <input type="number" id="reg-stock" placeholder="10" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[9px] uppercase text-slate-500 font-bold ml-1">Categoría</label>
+                    <input type="text" id="reg-cat" placeholder="BEBIDAS" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm uppercase">
+                </div>
+                <button onclick="enviarAMake()" id="btn-enviar" class="w-full py-4 bg-green-600 rounded-xl font-bold uppercase text-xs shadow-lg mt-2">Guardar Cambios</button>
             </div>
         </div>
     </div>
 
     <div id="main-app" class="hidden">
-        <header class="p-6 glass sticky top-0 z-50 flex justify-between items-center">
+        <header class="p-6 glass sticky top-0 z-50 flex justify-between items-center border-b border-white/5">
             <div>
-                <h1 id="module-title" class="text-2xl font-bold tracking-tighter text-blue-400 italic">INVENTARIO</h1>
-                <p id="module-desc" class="text-[9px] text-slate-400 uppercase tracking-widest">Control de Activos</p>
+                <h1 id="module-title" class="text-2xl font-bold tracking-tighter text-blue-400 italic uppercase">Inventario</h1>
+                <p id="module-desc" class="text-[9px] text-slate-500 uppercase tracking-widest">Estado de Conexión...</p>
             </div>
-            <button onclick="toggleModal()" class="bg-blue-600 w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-2xl">+</button>
+            <div class="flex gap-2">
+                <button onclick="logout()" class="text-slate-500 text-[10px] font-bold uppercase px-3 py-2 border border-white/10 rounded-xl">Salir</button>
+                <button onclick="toggleModal()" class="bg-blue-600 w-10 h-10 rounded-xl shadow-lg flex items-center justify-center text-xl font-bold active:scale-90">+</button>
+            </div>
         </header>
 
         <main class="p-4 space-y-6">
-            <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar..." class="w-full bg-slate-900/80 border border-white/10 p-4 rounded-2xl text-sm glass">
+            <div class="relative">
+                <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar en Compiuri OS..." 
+                    class="w-full bg-slate-900/80 border border-white/10 p-4 rounded-2xl text-sm glass shadow-inner">
+            </div>
 
-            <div class="grid grid-cols-2 gap-4" id="kpi-container">
-                <div class="glass p-4 rounded-2xl border-l-4 border-blue-500">
-                    <p id="kpi-label-1" class="text-[9px] text-slate-500 font-bold mb-1 uppercase">Total</p>
-                    <p id="kpi-val-1" class="text-xl font-bold">--</p>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="glass p-5 rounded-2xl border-l-4 border-blue-500">
+                    <p id="kpi-label-1" class="text-[9px] uppercase text-slate-500 font-bold mb-1">Cargando...</p>
+                    <p id="kpi-val-1" class="text-2xl font-bold">--</p>
                 </div>
-                <div class="glass p-4 rounded-2xl border-l-4 border-red-500">
-                    <p id="kpi-label-2" class="text-[9px] text-slate-500 font-bold mb-1 uppercase">Alerta</p>
-                    <p id="kpi-val-2" class="text-xl font-bold">--</p>
+                <div class="glass p-5 rounded-2xl border-l-4 border-red-500">
+                    <p id="kpi-label-2" class="text-[9px] uppercase text-slate-500 font-bold mb-1">Cargando...</p>
+                    <p id="kpi-val-2" class="text-2xl font-bold">--</p>
                 </div>
             </div>
 
-            <div class="glass p-4 rounded-2xl h-[320px]"><canvas id="mainChart"></canvas></div>
+            <div class="glass p-4 rounded-3xl">
+                <div class="chart-container"><canvas id="mainChart"></canvas></div>
+            </div>
 
-            <div id="mobile-list" class="space-y-3"></div>
+            <button onclick="refreshData()" class="w-full py-4 bg-slate-800 border border-white/5 rounded-2xl font-bold text-[10px] uppercase tracking-widest shadow-xl transition-all active:bg-slate-700">
+                🔄 Sincronizar con Make.com
+            </button>
+
+            <div id="mobile-list" class="space-y-3 pb-10"></div>
         </main>
 
         <nav class="fixed bottom-0 left-0 right-0 h-16 glass border-t border-white/10 flex justify-around items-center z-50">
             <button onclick="switchModule('inventario')" id="btn-inventario" class="flex flex-col items-center justify-center w-full h-full tab-active">
-                <span class="text-xl">📦</span><span class="text-[9px] font-bold uppercase mt-1">Stock</span>
+                <span class="text-xl">📦</span>
+                <span class="text-[9px] font-bold uppercase mt-1">Inventario</span>
             </button>
             <button onclick="switchModule('cierre')" id="btn-cierre" class="flex flex-col items-center justify-center w-full h-full text-slate-500">
-                <span class="text-xl">📅</span><span class="text-[9px] font-bold uppercase mt-1">Cierre</span>
+                <span class="text-xl">📅</span>
+                <span class="text-[9px] font-bold uppercase mt-1">Cierre Hoy</span>
             </button>
         </nav>
     </div>
 
     <script>
-        const AUTH = { user: "evans", pass: "1234" };
+        // CONFIGURACIÓN DE SEGURIDAD Y CONEXIONES
+        const AUTH = { user: "evans", pass: "1234" }; // Evans: Cambia esto por tu clave real
         const ENDPOINTS = {
             inventario: "https://hook.us2.make.com/mi3g1y472l73g51refukafaej8uuspr4",
             cierre: "https://hook.us2.make.com/d5tivtytjjtyrxw1hhcp4vr5ijerc6b5",
-            guardar: "TU_NUEVO_WEBHOOK_PARA_GUARDAR_AQUI" // <--- PEGA TU NUEVO WEBHOOK AQUÍ
+            guardar: "TU_URL_DE_MAKE_AQUI" // Evans: Pega aquí la URL de tu nuevo Webhook "Add or Update"
         };
 
         let currentModule = 'inventario', rawData = [], myChart = null;
         const palette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
 
         function handleLogin() {
-            if (document.getElementById('user').value === AUTH.user && document.getElementById('pass').value === AUTH.pass) {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+            if (u === AUTH.user && p === AUTH.pass) {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
                 refreshData();
+            } else {
+                alert("Acceso Denegado");
             }
         }
 
-        function toggleModal() {
-            document.getElementById('modal-registro').classList.toggle('hidden');
-        }
+        function logout() { location.reload(); }
 
+        function toggleModal() { document.getElementById('modal-registro').classList.toggle('hidden'); }
+
+        // MEJORA: ENVÍO CON LIMPIEZA DE DATOS PARA EL DATA STORE
         async function enviarAMake() {
             const btn = document.getElementById('btn-enviar');
+            const nomOriginal = document.getElementById('reg-nombre').value;
+            const nombreLimpio = nomOriginal.trim().toUpperCase(); // Key estandarizada
+            
             const data = {
-                nombre: document.getElementById('reg-nombre').value,
-                precio: document.getElementById('reg-precio').value,
-                stock: document.getElementById('reg-stock').value,
-                categoria: document.getElementById('reg-cat').value
+                nombre: nombreLimpio,
+                precio: parseFloat(document.getElementById('reg-precio').value),
+                stock: parseInt(document.getElementById('reg-stock').value),
+                categoria: document.getElementById('reg-cat').value.trim().toUpperCase()
             };
 
-            if(!data.nombre || !data.precio) return alert("Nombre y Precio son obligatorios");
+            if(!data.nombre || isNaN(data.precio)) return alert("El nombre y el precio son requeridos.");
 
-            btn.innerText = "GUARDANDO...";
+            btn.innerText = "PROCESANDO...";
             btn.disabled = true;
 
             try {
-                await fetch(ENDPOINTS.guardar, {
+                const res = await fetch(ENDPOINTS.guardar, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
-                alert("¡Producto actualizado, Evans!");
-                toggleModal();
-                refreshData();
-            } catch (e) { alert("Error al guardar"); }
-            btn.innerText = "GUARDAR EN INVENTARIO";
-            btn.disabled = false;
+                
+                if(res.ok) {
+                    alert("¡" + nombreLimpio + " guardado con éxito!");
+                    toggleModal();
+                    refreshData();
+                }
+            } catch (e) { alert("Error de comunicación con Make"); }
+            finally {
+                btn.innerText = "GUARDAR EN INVENTARIO";
+                btn.disabled = false;
+            }
         }
 
         async function refreshData() {
+            document.getElementById('module-desc').innerText = "Sincronizando...";
             try {
                 const response = await fetch(ENDPOINTS[currentModule]);
                 const json = await response.json();
                 let list = json.productos || json.ventas || json.data || json;
                 if (list.data) list = list.data;
                 rawData = Array.isArray(list) ? list : [list];
-                renderUI(rawData);
-            } catch (e) { console.log("Error Fetch"); }
+                filterData();
+                document.getElementById('module-desc').innerText = "Actualizado: " + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            } catch (e) { document.getElementById('module-desc').innerText = "Sin conexión a Make"; }
+        }
+
+        function filterData() {
+            const q = document.getElementById('main-search').value.toLowerCase();
+            const filtered = rawData.filter(i => {
+                const p = i.data || i.Record || i;
+                const nom = (p.NOMBRE_PRODUCTO || p.Nombre_Producto || p.Producto || "").toString().toLowerCase();
+                return nom.includes(q);
+            });
+            renderUI(filtered);
         }
 
         function renderUI(items) {
@@ -153,29 +214,42 @@
             let labels = [], values = [], totalVal = 0, alerts = 0;
 
             if (currentModule === 'inventario') {
-                document.getElementById('kpi-label-1').innerText = "Productos";
+                document.getElementById('kpi-label-1').innerText = "Total Items";
                 document.getElementById('kpi-label-2').innerText = "Stock Bajo";
+
                 items.forEach(i => {
                     const p = i.data || i.Record || i;
-                    const stock = parseInt(p.Stock_Disponible || 0);
+                    const stock = parseInt(p.Stock_Disponible || p.stock || 0);
                     if (stock < 5) alerts++;
-                    list.innerHTML += `<div class="glass p-4 rounded-2xl flex justify-between items-center"><div><p class="font-bold text-sm uppercase">${p.NOMBRE_PRODUCTO}</p><p class="text-blue-400 text-xs font-mono">RD$ ${p.PRECIO}</p></div><span class="px-3 py-1 rounded-full text-[10px] font-bold border ${stock < 5 ? 'border-red-500 text-red-500' : 'border-green-500 text-green-500'}">${stock} UDS</span></div>`;
+                    list.innerHTML += `
+                        <div class="glass p-4 rounded-2xl flex justify-between items-center card-entry">
+                            <div>
+                                <p class="font-bold text-sm uppercase">${p.NOMBRE_PRODUCTO || p.nombre || 'SIN NOMBRE'}</p>
+                                <p class="text-blue-400 font-mono text-xs">RD$ ${parseFloat(p.PRECIO || p.precio || 0).toLocaleString()}</p>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-[10px] font-bold border ${stock < 5 ? 'border-red-500 text-red-500 bg-red-500/10' : 'border-green-500 text-green-500 bg-green-500/10'}">${stock} UDS</span>
+                        </div>`;
                 });
                 document.getElementById('kpi-val-1').innerText = items.length;
                 document.getElementById('kpi-val-2').innerText = alerts;
-                updateChart(items.slice(0,6).map(x => (x.data?.NOMBRE_PRODUCTO || 'Item').substring(0,6)), items.slice(0,6).map(x => x.data?.Stock_Disponible || 0), 'bar');
+                updateChart(items.slice(0,6).map(x => (x.data?.NOMBRE_PRODUCTO || x.nombre || 'Item').substring(0,8)), items.slice(0,6).map(x => x.data?.Stock_Disponible || x.stock || 0), 'bar');
             } else {
-                document.getElementById('kpi-label-1').innerText = "Venta Hoy";
+                document.getElementById('kpi-label-1').innerText = "Vendido Hoy";
                 document.getElementById('kpi-label-2').innerText = "Órdenes";
                 let agrupar = {};
                 items.forEach(i => {
                     const p = i.data || i.Record || i;
-                    const monto = parseFloat(p.Monto_Total || 0);
+                    const nom = p.Nombre_Producto || p.Producto || "Venta";
+                    const monto = parseFloat(p.Monto_Total || p.monto || 0);
                     totalVal += monto;
-                    agrupar[p.Nombre_Producto] = (agrupar[p.Nombre_Producto] || 0) + monto;
-                    list.innerHTML += `<div class="glass p-4 rounded-2xl flex justify-between items-center"><div><p class="font-bold text-sm italic">${p.Nombre_Producto}</p><p class="text-slate-500 text-[10px] uppercase">${p.Cantidad} UDS</p></div><p class="text-green-400 font-bold font-mono">RD$ ${monto}</p></div>`;
+                    agrupar[nom] = (agrupar[nom] || 0) + monto;
+                    list.innerHTML += `
+                        <div class="glass p-4 rounded-2xl flex justify-between items-center card-entry">
+                            <div><p class="font-bold text-sm italic">${nom}</p><p class="text-slate-500 text-[10px] uppercase">${p.Cantidad || 1} Unidades</p></div>
+                            <p class="text-green-400 font-bold font-mono">RD$ ${monto.toLocaleString()}</p>
+                        </div>`;
                 });
-                document.getElementById('kpi-val-1').innerText = "RD$ " + Math.round(totalVal);
+                document.getElementById('kpi-val-1').innerText = "RD$ " + Math.round(totalVal).toLocaleString();
                 document.getElementById('kpi-val-2').innerText = items.length;
                 updateChart(Object.keys(agrupar).slice(0,5), Object.values(agrupar).slice(0,5), 'pie');
             }
@@ -187,7 +261,11 @@
             myChart = new Chart(ctx, {
                 type: type,
                 data: { labels: labels, datasets: [{ data: data, backgroundColor: palette.map(c => c + 'CC'), borderColor: '#0f172a', borderWidth: 2 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: type === 'pie', position: 'bottom', labels: { color: '#94a3b8', font: {size: 8} } } } }
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { legend: { display: type === 'pie', position: 'bottom', labels: { color: '#94a3b8', font: {size: 8} } } },
+                    scales: type === 'bar' ? { y: { beginAtZero: true, ticks: { color: '#94a3b8', font: {size: 8} } }, x: { ticks: { color: '#94a3b8', font: {size: 8} } } } : {}
+                }
             });
         }
 
@@ -195,7 +273,7 @@
             currentModule = mod;
             document.querySelectorAll('nav button').forEach(el => el.classList.remove('tab-active', 'text-slate-500'));
             document.getElementById('btn-' + mod).classList.add('tab-active');
-            document.getElementById('module-title').innerText = mod.toUpperCase();
+            document.getElementById('module-title').innerText = mod === 'inventario' ? 'Inventario' : 'Cierre Hoy';
             refreshData();
         }
     </script>
