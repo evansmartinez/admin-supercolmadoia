@@ -46,7 +46,6 @@
         <div class="glass p-6 rounded-3xl w-full max-w-sm space-y-4 relative shadow-2xl border-t-2 border-blue-500">
             <button onclick="toggleModal()" class="absolute top-4 right-4 text-slate-400 text-xl">✕</button>
             <h3 class="text-xl font-bold text-blue-100 italic uppercase">Gestión de Stock</h3>
-            <p class="text-[10px] text-slate-400 uppercase leading-tight">La cantidad se sumará al inventario actual.</p>
             <div class="space-y-3">
                 <input type="text" id="reg-nombre" placeholder="NOMBRE DEL PRODUCTO" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm uppercase">
                 <div class="grid grid-cols-2 gap-2">
@@ -60,7 +59,7 @@
     </div>
 
     <div id="main-app" class="hidden">
-        <header class="p-6 glass sticky top-0 z-50 flex justify-between items-center border-b border-white/5">
+        <header class="p-6 glass sticky top-0 z-50 flex justify-between items-center">
             <div>
                 <h1 id="module-title" class="text-2xl font-bold tracking-tighter text-blue-400 italic uppercase">Inventario</h1>
                 <p id="module-desc" class="text-[9px] text-slate-500 uppercase font-bold italic">Hola, Evans</p>
@@ -72,7 +71,7 @@
         </header>
 
         <main class="p-4 space-y-6">
-            <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar en Compiuri..." class="w-full bg-slate-900/80 border border-white/10 p-4 rounded-2xl text-sm glass shadow-inner focus:border-blue-500">
+            <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar en Compiuri..." class="w-full bg-slate-900/80 border border-white/10 p-4 rounded-2xl text-sm glass shadow-inner">
 
             <div class="grid grid-cols-2 gap-4">
                 <div class="glass p-5 rounded-2xl border-l-4 border-blue-500">
@@ -106,8 +105,6 @@
 
     <script>
         const AUTH = { user: "evans", pass: "1234" };
-        
-        // TUS WEBHOOKS ORIGINALES Y EXACTOS
         const ENDPOINTS = {
             inventario: "https://hook.us2.make.com/mi3g1y472l73g51refukafaej8uuspr4",
             cierre: "https://hook.us2.make.com/d5tivtytjjtyrxw1hhcp4vr5ijerc6b5",
@@ -142,7 +139,6 @@
         function logout() { localStorage.removeItem('compiuri_session'); location.reload(); }
         function toggleModal() { document.getElementById('modal-registro').classList.toggle('hidden'); }
 
-        // LÓGICA DE SUMA AUTOMÁTICA
         async function enviarAMake() {
             const btn = document.getElementById('btn-enviar');
             const nomOriginal = document.getElementById('reg-nombre').value.trim().toUpperCase();
@@ -178,8 +174,7 @@
                     alert("✅ Éxito: " + nomOriginal + " ahora tiene " + stockFinal + " unidades.");
                     toggleModal();
                     document.getElementById('loading-overlay').classList.remove('hidden');
-                    
-                    // FRENO DE CARRERA: Espera 3 segundos para que Make termine
+                    // ESPERA DE 3 SEGUNDOS PARA EVITAR DATOS VIEJOS
                     setTimeout(() => {
                         document.getElementById('loading-overlay').classList.add('hidden');
                         refreshData();
@@ -203,11 +198,11 @@
             renderUI(filtered);
         }
 
-        // SOLUCIÓN DE CACHÉ
         async function refreshData() {
             document.getElementById('module-desc').innerText = "Sincronizando...";
             document.getElementById('module-desc').className = "text-[9px] text-yellow-400 uppercase font-bold animate-pulse";
             try {
+                // ROMPE-CACHÉ: Añadimos tiempo a la URL
                 const response = await fetch(`${ENDPOINTS[currentModule]}?t=${new Date().getTime()}`, { cache: 'no-store' });
                 const json = await response.json();
                 let list = json.productos || json.ventas || json.data || json;
@@ -218,18 +213,15 @@
                 document.getElementById('module-desc').className = "text-[9px] text-green-400 uppercase font-bold";
             } catch (e) { 
                 document.getElementById('module-desc').innerText = "Error de conexión"; 
-                document.getElementById('module-desc').className = "text-[9px] text-red-500 uppercase font-bold";
             }
         }
 
-        // RENDERIZADO (CON LA GRÁFICA DE TORTA)
         function renderUI(items) {
             const list = document.getElementById('mobile-list');
             list.innerHTML = "";
             let totalVal = 0, alerts = 0;
 
             if (currentModule === 'inventario') {
-                // RENDER: INVENTARIO (Gráfica de barras)
                 document.getElementById('kpi-label-1').innerText = "Total Productos";
                 document.getElementById('kpi-label-2').innerText = "Stock Crítico";
                 items.forEach(i => {
@@ -240,57 +232,32 @@
                 });
                 document.getElementById('kpi-val-1').innerText = items.length;
                 document.getElementById('kpi-val-2').innerText = alerts;
-                
-                // Generar gráfica de barras
                 updateChart(items.slice(0,6).map(x => (x.data?.NOMBRE_PRODUCTO || x.nombre || 'Item').substring(0,6)), items.slice(0,6).map(x => x.data?.Stock_Disponible || x.stock || 0), 'bar');
-            
             } else {
-                // RENDER: CIERRE (Gráfica de torta)
                 document.getElementById('kpi-label-1').innerText = "Caja Hoy";
                 document.getElementById('kpi-label-2').innerText = "Órdenes";
                 let agrupar = {};
-                
                 items.forEach(i => {
                     const p = i.data || i.Record || i;
-                    const nom = p.Nombre_Producto || p.Producto || p.nombre || "Venta N/A";
+                    const nom = p.Nombre_Producto || p.Producto || p.nombre || "Venta";
                     const monto = parseFloat(p.Monto_Total || p.monto || 0);
                     totalVal += monto;
-                    // Agrupamos montos por producto para la gráfica
                     agrupar[nom] = (agrupar[nom] || 0) + monto;
-                    
                     list.innerHTML += `<div class="glass p-4 rounded-2xl flex justify-between items-center card-entry mb-2"><div><p class="font-bold text-sm italic">${nom}</p><p class="text-slate-500 text-[10px] uppercase">${p.Cantidad || 1} Uds</p></div><p class="text-green-400 font-bold font-mono">RD$ ${monto.toLocaleString()}</p></div>`;
                 });
-                
                 document.getElementById('kpi-val-1').innerText = "RD$ " + Math.round(totalVal).toLocaleString();
                 document.getElementById('kpi-val-2').innerText = items.length;
-                
-                // Generar gráfica de torta
                 updateChart(Object.keys(agrupar).slice(0,5), Object.values(agrupar).slice(0,5), 'pie');
             }
         }
 
-        // GENERADOR DE GRÁFICAS (DIFERENCIA ENTRE BARRAS Y TORTA)
         function updateChart(labels, data, type) {
             const ctx = document.getElementById('mainChart').getContext('2d');
             if (myChart) myChart.destroy();
             myChart = new Chart(ctx, {
-                type: type, // 'bar' o 'pie'
+                type: type,
                 data: { labels: labels, datasets: [{ data: data, backgroundColor: palette.map(c => c + 'CC'), borderColor: '#0f172a', borderWidth: 2 }] },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    plugins: { 
-                        legend: { 
-                            display: type === 'pie', // Solo muestra leyenda en la torta
-                            position: 'bottom', 
-                            labels: { color: '#94a3b8', font: {size: 8} } 
-                        } 
-                    },
-                    scales: type === 'bar' ? { 
-                        y: { beginAtZero: true, ticks: { color: '#94a3b8', font: {size: 8} } }, 
-                        x: { ticks: { color: '#94a3b8', font: {size: 8} } } 
-                    } : {} // No usa escalas si es torta
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: type === 'pie', position: 'bottom', labels: { color: '#94a3b8', font: {size: 8} } } } }
             });
         }
 
