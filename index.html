@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>COMPIURI OS - Admin Business</title>
+    <title>COMPIURI OS - Admin Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -12,13 +12,22 @@
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .tab-active { color: #60a5fa; border-top: 3px solid #3b82f6; background: rgba(59, 130, 246, 0.1); }
         .chart-container { position: relative; height: 260px; width: 100%; }
-        #login-screen, #modal-registro { position: fixed; inset: 0; z-index: 100; background: rgba(15, 23, 42, 0.95); display: flex; align-items: center; justify-content: center; padding: 20px; }
+        #login-screen, #modal-registro, #loading-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(15, 23, 42, 0.95); display: flex; align-items: center; justify-content: center; padding: 20px; }
         .hidden { display: none !important; }
         input { transition: all 0.2s; }
         input:focus { border-color: #3b82f6 !important; outline: none; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); }
+        .card-entry { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="pb-20">
+
+    <div id="loading-overlay" class="hidden">
+        <div class="text-center">
+            <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-xs uppercase tracking-widest font-bold text-blue-400">Actualizando...</p>
+        </div>
+    </div>
 
     <div id="login-screen">
         <div class="glass p-8 rounded-3xl w-full max-w-sm shadow-2xl text-center space-y-6">
@@ -26,16 +35,17 @@
             <div class="space-y-4 text-left">
                 <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl text-sm">
                 <input type="password" id="pass" placeholder="Contraseña" class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl text-sm">
-                <button onclick="handleLogin()" class="w-full py-4 bg-blue-600 rounded-xl font-bold uppercase text-xs">Acceder</button>
+                <p id="login-error" class="text-red-500 text-[10px] font-bold uppercase hidden text-center">Credenciales Incorrectas</p>
+                <button onclick="handleLogin()" class="w-full py-4 bg-blue-600 rounded-xl font-bold uppercase text-xs active:scale-95 transition-all">Acceder</button>
             </div>
+            <p class="text-[9px] text-slate-600 uppercase">Evans Martínez © 2026</p>
         </div>
     </div>
 
     <div id="modal-registro" class="hidden">
         <div class="glass p-6 rounded-3xl w-full max-w-sm space-y-4 relative shadow-2xl border-t-2 border-blue-500">
-            <button onclick="toggleModal()" class="absolute top-4 right-4 text-slate-400">✕</button>
-            <h3 class="text-xl font-bold text-blue-100 italic">ACTUALIZAR STOCK</h3>
-            <p class="text-[10px] text-slate-400 uppercase">La cantidad ingresada se sumará al stock actual.</p>
+            <button onclick="toggleModal()" class="absolute top-4 right-4 text-slate-400 text-xl">✕</button>
+            <h3 class="text-xl font-bold text-blue-100 italic uppercase">Gestión de Stock</h3>
             <div class="space-y-3">
                 <input type="text" id="reg-nombre" placeholder="NOMBRE DEL PRODUCTO" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm uppercase">
                 <div class="grid grid-cols-2 gap-2">
@@ -43,7 +53,7 @@
                     <input type="number" id="reg-stock" placeholder="CANT. A SUMAR" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm">
                 </div>
                 <input type="text" id="reg-cat" placeholder="CATEGORÍA" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm uppercase">
-                <button onclick="enviarAMake()" id="btn-enviar" class="w-full py-4 bg-green-600 rounded-xl font-bold uppercase text-xs">Actualizar Inventario</button>
+                <button onclick="enviarAMake()" id="btn-enviar" class="w-full py-4 bg-green-600 rounded-xl font-bold uppercase text-xs shadow-lg mt-2">Guardar Cambios</button>
             </div>
         </div>
     </div>
@@ -51,31 +61,35 @@
     <div id="main-app" class="hidden">
         <header class="p-6 glass sticky top-0 z-50 flex justify-between items-center">
             <div>
-                <h1 id="module-title" class="text-2xl font-bold tracking-tighter text-blue-400 italic uppercase italic">Inventario</h1>
-                <p id="module-desc" class="text-[9px] text-slate-500 uppercase">Sincronizado</p>
+                <h1 id="module-title" class="text-2xl font-bold tracking-tighter text-blue-400 italic uppercase">Inventario</h1>
+                <p id="module-desc" class="text-[9px] text-slate-500 uppercase font-bold italic">Hola, Evans</p>
             </div>
             <div class="flex gap-2">
                 <button onclick="logout()" class="text-slate-500 text-[10px] font-bold uppercase px-3 py-2 border border-white/10 rounded-xl">Salir</button>
-                <button onclick="toggleModal()" class="bg-blue-600 w-10 h-10 rounded-xl shadow-lg flex items-center justify-center text-xl font-bold">+</button>
+                <button onclick="toggleModal()" class="bg-blue-600 w-10 h-10 rounded-xl flex items-center justify-center text-xl font-bold">+</button>
             </div>
         </header>
 
         <main class="p-4 space-y-6">
-            <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar..." class="w-full bg-slate-900/80 border border-white/10 p-4 rounded-2xl text-sm glass">
+            <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar..." class="w-full bg-slate-900 border border-white/10 p-4 rounded-2xl text-sm glass">
 
             <div class="grid grid-cols-2 gap-4">
                 <div class="glass p-5 rounded-2xl border-l-4 border-blue-500">
-                    <p id="kpi-label-1" class="text-[9px] uppercase text-slate-500 font-bold mb-1 italic">Total Stock</p>
+                    <p id="kpi-label-1" class="text-[9px] uppercase text-slate-500 mb-1 font-bold">--</p>
                     <p id="kpi-val-1" class="text-2xl font-bold">--</p>
                 </div>
                 <div class="glass p-5 rounded-2xl border-l-4 border-red-500">
-                    <p id="kpi-label-2" class="text-[9px] uppercase text-slate-500 font-bold mb-1 italic">Críticos</p>
+                    <p id="kpi-label-2" class="text-[9px] uppercase text-slate-500 mb-1 font-bold">--</p>
                     <p id="kpi-val-2" class="text-2xl font-bold">--</p>
                 </div>
             </div>
 
             <div class="glass p-4 rounded-3xl"><div class="chart-container"><canvas id="mainChart"></canvas></div></div>
-            <button onclick="refreshData()" class="w-full py-4 bg-slate-800 rounded-2xl font-bold text-[10px] uppercase tracking-widest">🔄 Sincronizar Datos</button>
+            
+            <button onclick="refreshData()" class="w-full py-4 bg-slate-800 border border-white/5 rounded-2xl font-bold text-[10px] uppercase tracking-widest active:bg-slate-700 transition-all shadow-xl">
+                🔄 Sincronizar Datos
+            </button>
+
             <div id="mobile-list" class="space-y-3 pb-10"></div>
         </main>
 
@@ -98,20 +112,32 @@
         };
 
         let currentModule = 'inventario', rawData = [], myChart = null;
-        const palette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+        const palette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
 
-        function handleLogin() {
-            if (document.getElementById('user').value === AUTH.user && document.getElementById('pass').value === AUTH.pass) {
+        window.onload = () => {
+            if(localStorage.getItem('compiuri_session') === 'active') {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
                 refreshData();
             }
+        };
+
+        function handleLogin() {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+            if (u === AUTH.user && p === AUTH.pass) {
+                localStorage.setItem('compiuri_session', 'active');
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                refreshData();
+            } else {
+                document.getElementById('login-error').classList.remove('hidden');
+            }
         }
 
-        function logout() { location.reload(); }
+        function logout() { localStorage.removeItem('compiuri_session'); location.reload(); }
         function toggleModal() { document.getElementById('modal-registro').classList.toggle('hidden'); }
 
-        // MEJORA: LOGICA DE SUMA AUTOMÁTICA
         async function enviarAMake() {
             const btn = document.getElementById('btn-enviar');
             const nomOriginal = document.getElementById('reg-nombre').value.trim().toUpperCase();
@@ -119,76 +145,99 @@
             const cantInput = parseInt(document.getElementById('reg-stock').value) || 0;
             const catInput = document.getElementById('reg-cat').value.trim().toUpperCase();
 
-            if(!nomOriginal || isNaN(precioInput)) return alert("Nombre y precio son obligatorios");
+            if(!nomOriginal || isNaN(precioInput)) return alert("Datos incompletos");
 
-            // Evans: Aquí buscamos el producto en la lista que ya tenemos cargada
             const productoExistente = rawData.find(i => {
                 const p = i.data || i.Record || i;
-                const nombreEnLista = (p.NOMBRE_PRODUCTO || p.nombre || "").toString().toUpperCase();
-                return nombreEnLista === nomOriginal;
+                const nomLista = (p.NOMBRE_PRODUCTO || p.nombre || p.Producto || "").toString().trim().toUpperCase();
+                return nomLista === nomOriginal;
             });
 
             let stockFinal = cantInput;
-
             if (productoExistente) {
                 const p = productoExistente.data || productoExistente.Record || productoExistente;
-                const stockActual = parseInt(p.Stock_Disponible || p.stock || 0);
-                stockFinal = stockActual + cantInput; // <--- AQUÍ SE HACE LA SUMA
-                console.log(`Sumando: ${stockActual} actual + ${cantInput} nuevo = ${stockFinal}`);
+                stockFinal = parseInt(p.Stock_Disponible || p.stock || 0) + cantInput;
             }
 
-            const data = {
-                nombre: nomOriginal,
-                precio: precioInput,
-                stock: stockFinal,
-                categoria: catInput
-            };
-
-            btn.innerText = "PROCESANDO...";
-            btn.disabled = true;
+            const data = { nombre: nomOriginal, precio: precioInput, stock: stockFinal, categoria: catInput };
+            btn.innerText = "PROCESANDO..."; btn.disabled = true;
 
             try {
-                await fetch(ENDPOINTS.guardar, {
+                const res = await fetch(ENDPOINTS.guardar, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
-                alert("Stock actualizado: " + nomOriginal + " ahora tiene " + stockFinal + " unidades.");
-                toggleModal();
-                refreshData();
-            } catch (e) { alert("Error de red"); }
-            finally { btn.innerText = "Actualizar Inventario"; btn.disabled = false; }
+                if(res.ok) {
+                    alert("✅ Éxito: " + nomOriginal + " actualizado.");
+                    toggleModal();
+                    document.getElementById('loading-overlay').classList.remove('hidden');
+                    setTimeout(() => {
+                        document.getElementById('loading-overlay').classList.add('hidden');
+                        refreshData();
+                    }, 3000);
+                }
+            } catch (e) { alert("Error"); }
+            finally { btn.innerText = "Guardar Cambios"; btn.disabled = false; }
+        }
+
+        function filterData() {
+            const search = document.getElementById('main-search').value.toLowerCase().trim();
+            const filtered = rawData.filter(i => {
+                const p = i.data || i.Record || i;
+                const nom = (p.Nombre_Producto || p.NOMBRE_PRODUCTO || p.Producto || p.nombre || "").toString().toLowerCase();
+                return nom.includes(search);
+            });
+            renderUI(filtered);
         }
 
         async function refreshData() {
+            document.getElementById('module-desc').innerText = "Sincronizando...";
             try {
-                const response = await fetch(ENDPOINTS[currentModule]);
+                const response = await fetch(`${ENDPOINTS[currentModule]}?t=${new Date().getTime()}`, { cache: 'no-store' });
                 const json = await response.json();
                 let list = json.productos || json.ventas || json.data || json;
                 if (list.data) list = list.data;
                 rawData = Array.isArray(list) ? list : [list];
-                renderUI(rawData);
-            } catch (e) { console.error("Error Fetch"); }
+                filterData();
+                document.getElementById('module-desc').innerText = "Estado: Conectado";
+            } catch (e) { document.getElementById('module-desc').innerText = "Error"; }
         }
 
         function renderUI(items) {
             const list = document.getElementById('mobile-list');
             list.innerHTML = "";
-            let alerts = 0;
+            let totalVal = 0, alerts = 0;
+
             if (currentModule === 'inventario') {
-                document.getElementById('kpi-label-1').innerText = "Total Stock";
-                document.getElementById('kpi-label-2').innerText = "Críticos";
+                document.getElementById('kpi-label-1').innerText = "Total Productos";
+                document.getElementById('kpi-label-2').innerText = "Stock Crítico";
                 items.forEach(i => {
                     const p = i.data || i.Record || i;
                     const stock = parseInt(p.Stock_Disponible || p.stock || 0);
                     if (stock < 5) alerts++;
-                    list.innerHTML += `<div class="glass p-4 rounded-2xl flex justify-between items-center"><div><p class="font-bold text-sm uppercase">${p.NOMBRE_PRODUCTO || p.nombre}</p><p class="text-blue-400 text-xs font-mono">RD$ ${p.PRECIO || p.precio}</p></div><span class="px-3 py-1 rounded-full text-[10px] font-bold border ${stock < 5 ? 'border-red-500 text-red-500' : 'border-green-500 text-green-500'}">${stock} UDS</span></div>`;
+                    list.innerHTML += `<div class="glass p-4 rounded-2xl flex justify-between items-center card-entry mb-2"><div><p class="font-bold text-sm uppercase">${p.NOMBRE_PRODUCTO || p.nombre || 'S/N'}</p><p class="text-blue-400 text-xs">RD$ ${parseFloat(p.PRECIO || p.precio || 0).toLocaleString()}</p></div><span class="px-3 py-1 rounded-full text-[10px] font-bold border ${stock < 5 ? 'border-red-500 text-red-500 bg-red-500/10' : 'border-green-500 text-green-500 bg-green-500/10'}">${stock} UDS</span></div>`;
                 });
                 document.getElementById('kpi-val-1').innerText = items.length;
                 document.getElementById('kpi-val-2').innerText = alerts;
                 updateChart(items.slice(0,6).map(x => (x.data?.NOMBRE_PRODUCTO || x.nombre || 'Item').substring(0,6)), items.slice(0,6).map(x => x.data?.Stock_Disponible || x.stock || 0), 'bar');
             } else {
-                // ... (Logica de cierre se mantiene igual)
+                document.getElementById('kpi-label-1').innerText = "Caja Hoy";
+                document.getElementById('kpi-label-2').innerText = "Ventas";
+                let agrupar = {};
+                items.forEach(i => {
+                    const p = i.data || i.Record || i;
+                    const nom = p.Nombre_Producto || p.Producto || p.nombre || "Venta";
+                    const monto = parseFloat(p.Monto_Total || p.monto || 0);
+                    totalVal += monto;
+                    agrupar[nom] = (agrupar[nom] || 0) + monto;
+                    list.innerHTML += `<div class="glass p-4 rounded-2xl flex justify-between items-center card-entry mb-2"><div><p class="font-bold text-sm italic">${nom}</p><p class="text-slate-500 text-[10px] uppercase">${p.Cantidad || 1} Uds</p></div><p class="text-green-400 font-bold font-mono">RD$ ${monto.toLocaleString()}</p></div>`;
+                });
+                document.getElementById('kpi-val-1').innerText = "RD$ " + Math.round(totalVal).toLocaleString();
+                document.getElementById('kpi-val-2').innerText = items.length;
+                
+                // AQUÍ SE GENERA LA GRÁFICA DE TORTA
+                updateChart(Object.keys(agrupar).slice(0,5), Object.values(agrupar).slice(0,5), 'pie');
             }
         }
 
@@ -198,7 +247,17 @@
             myChart = new Chart(ctx, {
                 type: type,
                 data: { labels: labels, datasets: [{ data: data, backgroundColor: palette.map(c => c + 'CC'), borderColor: '#0f172a', borderWidth: 2 }] },
-                options: { responsive: true, maintainAspectRatio: false }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { display: type === 'pie', position: 'bottom', labels: { color: '#94a3b8', font: {size: 8} } } 
+                    },
+                    scales: type === 'bar' ? { 
+                        y: { beginAtZero: true, ticks: { color: '#94a3b8', font: {size: 8} } }, 
+                        x: { ticks: { color: '#94a3b8', font: {size: 8} } } 
+                    } : {}
+                }
             });
         }
 
@@ -206,6 +265,7 @@
             currentModule = mod;
             document.querySelectorAll('nav button').forEach(el => el.classList.remove('tab-active', 'text-slate-500'));
             document.getElementById('btn-' + mod).classList.add('tab-active');
+            document.getElementById('module-title').innerText = mod === 'inventario' ? 'Inventario' : 'Cierre Hoy';
             refreshData();
         }
     </script>
