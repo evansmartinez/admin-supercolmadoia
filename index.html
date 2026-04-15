@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>COMPIURI OS - Admin Pro</title>
+    <title>COMPIURI OS - Admin Business</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -12,7 +12,7 @@
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .tab-active { color: #60a5fa; border-top: 3px solid #3b82f6; background: rgba(59, 130, 246, 0.1); }
         .chart-container { position: relative; height: 260px; width: 100%; }
-        #login-screen, #modal-registro, #loading-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(15, 23, 42, 0.95); display: flex; align-items: center; justify-content: center; padding: 20px; }
+        #login-screen, #modal-registro { position: fixed; inset: 0; z-index: 100; background: rgba(15, 23, 42, 0.95); display: flex; align-items: center; justify-content: center; padding: 20px; }
         .hidden { display: none !important; }
         input { transition: all 0.2s; }
         input:focus { border-color: #3b82f6 !important; outline: none; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); }
@@ -22,30 +22,23 @@
 </head>
 <body class="pb-20">
 
-    <div id="loading-overlay" class="hidden">
-        <div class="text-center">
-            <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p class="text-xs uppercase tracking-widest font-bold text-blue-400">Actualizando Base de Datos...</p>
-        </div>
-    </div>
-
     <div id="login-screen">
         <div class="glass p-8 rounded-3xl w-full max-w-sm shadow-2xl text-center space-y-6">
             <h2 class="text-3xl font-bold text-blue-400 italic">COMPIURI OS</h2>
             <div class="space-y-4 text-left">
                 <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl text-sm">
                 <input type="password" id="pass" placeholder="Contraseña" class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl text-sm">
-                <p id="login-error" class="text-red-500 text-[10px] font-bold uppercase hidden text-center">Credenciales Incorrectas</p>
+                <p id="login-error" class="text-red-500 text-[10px] font-bold uppercase hidden">Credenciales Incorrectas</p>
                 <button onclick="handleLogin()" class="w-full py-4 bg-blue-600 rounded-xl font-bold uppercase text-xs active:scale-95 transition-all">Acceder</button>
             </div>
-            <p class="text-[9px] text-slate-600 uppercase">Evans Martínez © 2026</p>
         </div>
     </div>
 
     <div id="modal-registro" class="hidden">
         <div class="glass p-6 rounded-3xl w-full max-w-sm space-y-4 relative shadow-2xl border-t-2 border-blue-500">
             <button onclick="toggleModal()" class="absolute top-4 right-4 text-slate-400 text-xl">✕</button>
-            <h3 class="text-xl font-bold text-blue-100 italic uppercase">Gestión de Stock</h3>
+            <h3 class="text-xl font-bold text-blue-100 italic uppercase">Actualizar Stock</h3>
+            <p class="text-[10px] text-slate-400 uppercase leading-tight">Si el producto existe, la cantidad se sumará al inventario actual.</p>
             <div class="space-y-3">
                 <input type="text" id="reg-nombre" placeholder="NOMBRE DEL PRODUCTO" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm uppercase">
                 <div class="grid grid-cols-2 gap-2">
@@ -53,25 +46,25 @@
                     <input type="number" id="reg-stock" placeholder="CANT. A SUMAR" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm">
                 </div>
                 <input type="text" id="reg-cat" placeholder="CATEGORÍA" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm uppercase">
-                <button onclick="enviarAMake()" id="btn-enviar" class="w-full py-4 bg-green-600 rounded-xl font-bold uppercase text-xs shadow-lg mt-2 active:scale-95 transition-all">Guardar Cambios</button>
+                <button onclick="enviarAMake()" id="btn-enviar" class="w-full py-4 bg-green-600 rounded-xl font-bold uppercase text-xs shadow-lg mt-2 active:scale-95 transition-all">Guardar en Sistema</button>
             </div>
         </div>
     </div>
 
     <div id="main-app" class="hidden">
-        <header class="p-6 glass sticky top-0 z-50 flex justify-between items-center">
+        <header class="p-6 glass sticky top-0 z-50 flex justify-between items-center border-b border-white/5">
             <div>
                 <h1 id="module-title" class="text-2xl font-bold tracking-tighter text-blue-400 italic uppercase">Inventario</h1>
-                <p id="module-desc" class="text-[9px] text-slate-500 uppercase font-bold italic">Hola, Evans</p>
+                <p id="module-desc" class="text-[9px] text-slate-500 uppercase font-bold text-green-400">Estado: Conectado</p>
             </div>
             <div class="flex gap-2">
                 <button onclick="logout()" class="text-slate-500 text-[10px] font-bold uppercase px-3 py-2 border border-white/10 rounded-xl">Salir</button>
-                <button onclick="toggleModal()" class="bg-blue-600 w-10 h-10 rounded-xl shadow-lg flex items-center justify-center text-xl font-bold">+</button>
+                <button onclick="toggleModal()" class="bg-blue-600 w-10 h-10 rounded-xl shadow-lg flex items-center justify-center text-xl font-bold active:scale-90 transition-all">+</button>
             </div>
         </header>
 
         <main class="p-4 space-y-6">
-            <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar en Compiuri..." class="w-full bg-slate-900/80 border border-white/10 p-4 rounded-2xl text-sm glass shadow-inner">
+            <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar en Compiuri..." class="w-full bg-slate-900/80 border border-white/10 p-4 rounded-2xl text-sm glass shadow-inner focus:border-blue-500">
 
             <div class="grid grid-cols-2 gap-4">
                 <div class="glass p-5 rounded-2xl border-l-4 border-blue-500">
@@ -87,7 +80,7 @@
             <div class="glass p-4 rounded-3xl"><div class="chart-container"><canvas id="mainChart"></canvas></div></div>
             
             <button onclick="refreshData()" class="w-full py-4 bg-slate-800 border border-white/5 rounded-2xl font-bold text-[10px] uppercase tracking-widest active:bg-slate-700 transition-all shadow-xl">
-                🔄 Sincronizar Datos
+                🔄 Sincronizar Base de Datos
             </button>
 
             <div id="mobile-list" class="space-y-3 pb-10"></div>
@@ -114,54 +107,57 @@
         let currentModule = 'inventario', rawData = [], myChart = null;
         const palette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
 
-        // PERSISTENCIA DE SESIÓN
-        window.onload = () => {
-            if(localStorage.getItem('compiuri_session') === 'active') {
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('main-app').classList.remove('hidden');
-                refreshData();
-            }
-        };
-
         function handleLogin() {
             const u = document.getElementById('user').value;
             const p = document.getElementById('pass').value;
+            const err = document.getElementById('login-error');
             if (u === AUTH.user && p === AUTH.pass) {
-                localStorage.setItem('compiuri_session', 'active');
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
                 refreshData();
             } else {
-                document.getElementById('login-error').classList.remove('hidden');
+                err.classList.remove('hidden');
+                setTimeout(() => err.classList.add('hidden'), 3000);
             }
         }
 
-        function logout() { localStorage.removeItem('compiuri_session'); location.reload(); }
+        function logout() { location.reload(); }
         function toggleModal() { document.getElementById('modal-registro').classList.toggle('hidden'); }
 
         async function enviarAMake() {
             const btn = document.getElementById('btn-enviar');
+            // MEJORA 1: Limpieza profunda del nombre ingresado
             const nomOriginal = document.getElementById('reg-nombre').value.trim().toUpperCase();
             const precioInput = parseFloat(document.getElementById('reg-precio').value);
             const cantInput = parseInt(document.getElementById('reg-stock').value) || 0;
             const catInput = document.getElementById('reg-cat').value.trim().toUpperCase();
 
-            if(!nomOriginal || isNaN(precioInput)) return alert("Datos incompletos");
+            if(!nomOriginal || isNaN(precioInput)) return alert("El Nombre y Precio son requeridos");
 
+            // MEJORA 2: Limpieza profunda de los nombres en la base de datos para asegurar el match
             const productoExistente = rawData.find(i => {
                 const p = i.data || i.Record || i;
-                const nomLista = (p.NOMBRE_PRODUCTO || p.nombre || p.Producto || "").toString().trim().toUpperCase();
-                return nomLista === nomOriginal;
+                const nombreEnLista = (p.NOMBRE_PRODUCTO || p.Nombre_Producto || p.Producto || p.nombre || "").toString().trim().toUpperCase();
+                return nombreEnLista === nomOriginal;
             });
 
             let stockFinal = cantInput;
+
             if (productoExistente) {
                 const p = productoExistente.data || productoExistente.Record || productoExistente;
-                stockFinal = parseInt(p.Stock_Disponible || p.stock || 0) + cantInput;
+                const stockActual = parseInt(p.Stock_Disponible || p.stock || 0);
+                stockFinal = stockActual + cantInput; 
             }
 
-            const data = { nombre: nomOriginal, precio: precioInput, stock: stockFinal, categoria: catInput };
-            btn.innerText = "PROCESANDO..."; btn.disabled = true;
+            const data = {
+                nombre: nomOriginal,
+                precio: precioInput,
+                stock: stockFinal,
+                categoria: catInput
+            };
+
+            btn.innerText = "PROCESANDO MAKE...";
+            btn.disabled = true;
 
             try {
                 const res = await fetch(ENDPOINTS.guardar, {
@@ -171,21 +167,32 @@
                 });
                 
                 if(res.ok) {
-                    alert("✅ Éxito: " + nomOriginal + " ahora tiene " + stockFinal + " unidades.");
+                    alert("✅ ¡Éxito! " + nomOriginal + " actualizado a " + stockFinal + " unidades.");
                     toggleModal();
-                    document.getElementById('loading-overlay').classList.remove('hidden');
-                    // ESPERA DE 3 SEGUNDOS PARA EVITAR DATOS VIEJOS
+                    
+                    // MEJORA 3: EL FRENO DE MANO (Race Condition Fix)
+                    // Esperamos 2 segundos antes de descargar la lista de Make para darle tiempo a guardar
+                    document.getElementById('module-desc').innerText = "Guardando en Make...";
+                    document.getElementById('module-desc').className = "text-[9px] text-yellow-400 uppercase font-bold animate-pulse";
+                    
                     setTimeout(() => {
-                        document.getElementById('loading-overlay').classList.add('hidden');
                         refreshData();
+                        // Limpiamos los campos para el próximo producto
                         document.getElementById('reg-nombre').value = "";
                         document.getElementById('reg-precio').value = "";
                         document.getElementById('reg-stock').value = "";
                         document.getElementById('reg-cat').value = "";
-                    }, 3000);
+                    }, 2000); 
+
+                } else {
+                    alert("Error: Make.com rechazó la conexión.");
                 }
-            } catch (e) { alert("Error de red"); }
-            finally { btn.innerText = "Guardar Cambios"; btn.disabled = false; }
+            } catch (e) { 
+                alert("Fallo de red: El servidor de Make no responde."); 
+            } finally { 
+                btn.innerText = "Guardar en Sistema"; 
+                btn.disabled = false; 
+            }
         }
 
         function filterData() {
@@ -201,50 +208,71 @@
         async function refreshData() {
             document.getElementById('module-desc').innerText = "Sincronizando...";
             document.getElementById('module-desc').className = "text-[9px] text-yellow-400 uppercase font-bold animate-pulse";
+            
             try {
-                // ROMPE-CACHÉ: Añadimos tiempo a la URL
-                const response = await fetch(`${ENDPOINTS[currentModule]}?t=${new Date().getTime()}`, { cache: 'no-store' });
+                const response = await fetch(ENDPOINTS[currentModule]);
                 const json = await response.json();
                 let list = json.productos || json.ventas || json.data || json;
                 if (list.data) list = list.data;
                 rawData = Array.isArray(list) ? list : [list];
-                filterData();
+                
+                filterData(); 
                 document.getElementById('module-desc').innerText = "Estado: Conectado";
                 document.getElementById('module-desc').className = "text-[9px] text-green-400 uppercase font-bold";
             } catch (e) { 
                 document.getElementById('module-desc').innerText = "Error de conexión"; 
+                document.getElementById('module-desc').className = "text-[9px] text-red-500 uppercase font-bold";
             }
         }
 
         function renderUI(items) {
             const list = document.getElementById('mobile-list');
             list.innerHTML = "";
-            let totalVal = 0, alerts = 0;
+            let labels = [], values = [], totalVal = 0, alerts = 0;
 
             if (currentModule === 'inventario') {
                 document.getElementById('kpi-label-1').innerText = "Total Productos";
                 document.getElementById('kpi-label-2').innerText = "Stock Crítico";
+                
                 items.forEach(i => {
                     const p = i.data || i.Record || i;
                     const stock = parseInt(p.Stock_Disponible || p.stock || 0);
                     if (stock < 5) alerts++;
-                    list.innerHTML += `<div class="glass p-4 rounded-2xl flex justify-between items-center card-entry mb-2"><div><p class="font-bold text-sm uppercase">${p.NOMBRE_PRODUCTO || p.nombre || 'S/N'}</p><p class="text-blue-400 text-xs font-mono">RD$ ${parseFloat(p.PRECIO || p.precio || 0).toLocaleString()}</p></div><span class="px-3 py-1 rounded-full text-[10px] font-bold border ${stock < 5 ? 'border-red-500 text-red-500 bg-red-500/10' : 'border-green-500 text-green-500 bg-green-500/10'}">${stock} UDS</span></div>`;
+                    list.innerHTML += `
+                        <div class="glass p-4 rounded-2xl flex justify-between items-center card-entry mb-2">
+                            <div>
+                                <p class="font-bold text-sm uppercase">${p.NOMBRE_PRODUCTO || p.nombre || 'S/N'}</p>
+                                <p class="text-blue-400 text-xs font-mono">RD$ ${parseFloat(p.PRECIO || p.precio || 0).toLocaleString()}</p>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-[10px] font-bold border ${stock < 5 ? 'border-red-500 text-red-500 bg-red-500/10' : 'border-green-500 text-green-500 bg-green-500/10'}">${stock} UDS</span>
+                        </div>`;
                 });
                 document.getElementById('kpi-val-1').innerText = items.length;
                 document.getElementById('kpi-val-2').innerText = alerts;
                 updateChart(items.slice(0,6).map(x => (x.data?.NOMBRE_PRODUCTO || x.nombre || 'Item').substring(0,6)), items.slice(0,6).map(x => x.data?.Stock_Disponible || x.stock || 0), 'bar');
+            
             } else {
                 document.getElementById('kpi-label-1').innerText = "Caja Hoy";
-                document.getElementById('kpi-label-2').innerText = "Órdenes";
+                document.getElementById('kpi-label-2').innerText = "Órdenes Totales";
                 let agrupar = {};
+                
                 items.forEach(i => {
                     const p = i.data || i.Record || i;
-                    const nom = p.Nombre_Producto || p.Producto || p.nombre || "Venta";
+                    const nom = p.Nombre_Producto || p.Producto || "Venta N/A";
                     const monto = parseFloat(p.Monto_Total || p.monto || 0);
                     totalVal += monto;
                     agrupar[nom] = (agrupar[nom] || 0) + monto;
-                    list.innerHTML += `<div class="glass p-4 rounded-2xl flex justify-between items-center card-entry mb-2"><div><p class="font-bold text-sm italic">${nom}</p><p class="text-slate-500 text-[10px] uppercase">${p.Cantidad || 1} Uds</p></div><p class="text-green-400 font-bold font-mono">RD$ ${monto.toLocaleString()}</p></div>`;
+                    
+                    list.innerHTML += `
+                        <div class="glass p-4 rounded-2xl flex justify-between items-center card-entry mb-2">
+                            <div>
+                                <p class="font-bold text-sm italic">${nom}</p>
+                                <p class="text-slate-500 text-[10px] uppercase">${p.Cantidad || 1} Unidades</p>
+                            </div>
+                            <p class="text-green-400 font-bold font-mono">RD$ ${monto.toLocaleString()}</p>
+                        </div>`;
                 });
+                
                 document.getElementById('kpi-val-1').innerText = "RD$ " + Math.round(totalVal).toLocaleString();
                 document.getElementById('kpi-val-2').innerText = items.length;
                 updateChart(Object.keys(agrupar).slice(0,5), Object.values(agrupar).slice(0,5), 'pie');
