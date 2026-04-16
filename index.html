@@ -2,260 +2,302 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Pro - Colmado La Grada</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>COMPIURI OS - Admin Business</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    colors: {
-                        darkBg: '#121212',
-                        cardBg: '#1E1E1E',
-                        borderWhite: 'rgba(255,255,255,0.08)',
-                        gradaBlue: '#3B82F6',
-                    }
-                }
-            }
-        }
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #121212; color: white; }
-        .bento-card {
-            background-color: #1E1E1E;
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px;
-            padding: 20px;
-            transition: all 0.3s ease;
-        }
-        .bento-card:hover { border-color: rgba(59, 130, 246, 0.5); transform: translateY(-2px); }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; min-height: 100vh; overflow-x: hidden; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .tab-active { color: #60a5fa; border-top: 3px solid #3b82f6; background: rgba(59, 130, 246, 0.1); }
+        .chart-container { position: relative; height: 260px; width: 100%; }
+        #login-screen, #modal-registro { position: fixed; inset: 0; z-index: 100; background: rgba(15, 23, 42, 0.95); display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .hidden { display: none !important; }
+        input { transition: all 0.2s; }
+        input:focus { border-color: #3b82f6 !important; outline: none; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); }
+        .card-entry { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="p-4 md:p-6 lg:p-8">
+<body class="pb-20">
 
-    <header class="flex justify-between items-center mb-8 bento-card">
-        <div class="flex items-center gap-3">
-            <div class="bg-gradaBlue/10 p-3 rounded-xl text-gradaBlue text-2xl">🏪</div>
+    <div id="login-screen">
+        <div class="glass p-8 rounded-3xl w-full max-w-sm shadow-2xl text-center space-y-6">
+            <h2 class="text-3xl font-bold text-blue-400 italic">COMPIURI OS</h2>
+            <div class="space-y-4 text-left">
+                <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl text-sm">
+                <input type="password" id="pass" placeholder="Contraseña" class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl text-sm">
+                <p id="login-error" class="text-red-500 text-[10px] font-bold uppercase hidden">Credenciales Incorrectas</p>
+                <button onclick="handleLogin()" class="w-full py-4 bg-blue-600 rounded-xl font-bold uppercase text-xs active:scale-95 transition-all">Acceder</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-registro" class="hidden">
+        <div class="glass p-6 rounded-3xl w-full max-w-sm space-y-4 relative shadow-2xl border-t-2 border-blue-500">
+            <button onclick="toggleModal()" class="absolute top-4 right-4 text-slate-400 text-xl">✕</button>
+            <h3 class="text-xl font-bold text-blue-100 italic uppercase">Actualizar Stock</h3>
+            <p class="text-[10px] text-slate-400 uppercase leading-tight">Si el producto existe, la cantidad se sumará al inventario actual.</p>
+            <div class="space-y-3">
+                <input type="text" id="reg-nombre" placeholder="NOMBRE DEL PRODUCTO" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm uppercase">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="number" id="reg-precio" placeholder="PRECIO RD$" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm">
+                    <input type="number" id="reg-stock" placeholder="CANT. A SUMAR" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm">
+                </div>
+                <input type="text" id="reg-cat" placeholder="CATEGORÍA" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm uppercase">
+                <button onclick="enviarAMake()" id="btn-enviar" class="w-full py-4 bg-green-600 rounded-xl font-bold uppercase text-xs shadow-lg mt-2 active:scale-95 transition-all">Guardar en Sistema</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-app" class="hidden">
+        <header class="p-6 glass sticky top-0 z-50 flex justify-between items-center border-b border-white/5">
             <div>
-                <h1 class="text-xl font-bold">Colmado La Grada</h1>
-                <p class="text-xs text-slate-400">Panel de Control Operativo | Evans</p>
+                <h1 id="module-title" class="text-2xl font-bold tracking-tighter text-blue-400 italic uppercase">Inventario</h1>
+                <p id="module-desc" class="text-[9px] text-slate-500 uppercase">Estado: Conectado</p>
             </div>
-        </div>
-        <div class="flex items-center gap-4">
-            <div class="text-right">
-                <p id="fecha-actual" class="text-sm font-medium"></p>
-                <p id="status-conexion" class="text-xs text-yellow-500 font-bold">Conectando a Make...</p>
+            <div class="flex gap-2">
+                <button onclick="logout()" class="text-slate-500 text-[10px] font-bold uppercase px-3 py-2 border border-white/10 rounded-xl">Salir</button>
+                <button onclick="toggleModal()" class="bg-blue-600 w-10 h-10 rounded-xl shadow-lg flex items-center justify-center text-xl font-bold active:scale-90 transition-all">+</button>
             </div>
-            <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold text-gradaBlue border border-borderWhite">E</div>
-        </div>
-    </header>
+        </header>
 
-    <nav class="flex gap-2 mb-8 overflow-x-auto scrollbar-hide pb-2">
-        <button class="bg-gradaBlue text-white px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 flex-shrink-0">
-            📊 Hoy
-        </button>
-        <button class="bg-cardBg text-slate-300 hover:text-white px-5 py-2.5 rounded-xl text-sm flex items-center gap-2 border border-borderWhite flex-shrink-0">
-            📦 Inventario
-        </button>
-        <button class="bg-cardBg text-slate-300 hover:text-white px-5 py-2.5 rounded-xl text-sm flex items-center gap-2 border border-borderWhite flex-shrink-0">
-            🤝 Fiado <span class="bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full text-xs font-bold">3</span>
-        </button>
-        <button class="bg-cardBg text-slate-300 hover:text-white px-5 py-2.5 rounded-xl text-sm flex items-center gap-2 border border-borderWhite flex-shrink-0">
-            🛵 Delivery <span class="bg-gradaBlue/20 text-gradaBlue px-2 py-0.5 rounded-full text-xs font-bold">2</span>
-        </button>
-    </nav>
+        <main class="p-4 space-y-6">
+            <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar en Compiuri..." class="w-full bg-slate-900/80 border border-white/10 p-4 rounded-2xl text-sm glass shadow-inner focus:border-blue-500">
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        
-        <div class="bento-card lg:col-span-1 flex flex-col justify-between">
-            <p class="text-slate-400 text-sm mb-1">Ventas de hoy</p>
-            <h2 class="text-3xl font-bold text-white mb-1">RD$ 4,820</h2>
-            <p class="text-xs text-green-400 font-medium">+12% vs ayer</p>
-        </div>
-
-        <div class="bento-card flex flex-col justify-between">
-            <p class="text-slate-400 text-sm mb-1">Transacciones</p>
-            <h2 class="text-3xl font-bold text-white mb-1">47</h2>
-            <p class="text-xs text-green-400 font-medium">+5 vs ayer</p>
-        </div>
-
-        <div class="bento-card flex flex-col justify-between">
-            <p class="text-slate-400 text-sm mb-1">En fiado abierto</p>
-            <h2 class="text-3xl font-bold text-red-400 mb-1">RD$ 1,340</h2>
-            <p class="text-xs text-slate-500 font-medium">3 clientes activos</p>
-        </div>
-
-        <div class="bento-card flex flex-col justify-between">
-            <p class="text-slate-400 text-sm mb-1">Delivery pendiente</p>
-            <h2 class="text-3xl font-bold text-gradaBlue mb-1">2</h2>
-            <p class="text-xs text-slate-500 font-medium">1 en camino</p>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <div class="bento-card lg:col-span-2">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="font-semibold text-slate-200">Ventas - últimos 7 días</h3>
-                <span class="text-xs text-slate-500 uppercase font-bold">RD$</span>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="glass p-5 rounded-2xl border-l-4 border-blue-500">
+                    <p id="kpi-label-1" class="text-[9px] uppercase text-slate-500 font-bold mb-1 italic">Calculando...</p>
+                    <p id="kpi-val-1" class="text-2xl font-bold">--</p>
+                </div>
+                <div class="glass p-5 rounded-2xl border-l-4 border-red-500">
+                    <p id="kpi-label-2" class="text-[9px] uppercase text-slate-500 font-bold mb-1 italic">Calculando...</p>
+                    <p id="kpi-val-2" class="text-2xl font-bold">--</p>
+                </div>
             </div>
-            <div class="h-48 bg-gradaBlue/5 rounded-xl border border-dashed border-gradaBlue/20 flex items-center justify-center text-sm text-slate-600 italic">
-                [ Espacio para Gráfico de Línea ]
-            </div>
-        </div>
 
-        <div class="bento-card lg:col-span-1">
-            <div class="flex justify-between items-center mb-5">
-                <h3 class="font-semibold text-slate-200">Stock bajo</h3>
-                <button class="text-gradaBlue text-xs font-bold hover:underline">Ver todo ↗</button>
-            </div>
+            <div class="glass p-4 rounded-3xl"><div class="chart-container"><canvas id="mainChart"></canvas></div></div>
             
-            <div id="lista-stock-bajo" class="space-y-4 max-h-60 overflow-y-auto scrollbar-hide">
-                <p class="text-center py-6 text-sm text-slate-600 italic">Cargando inventario crítico...</p>
-                </div>
-        </div>
-    </div>
+            <button onclick="refreshData()" class="w-full py-4 bg-slate-800 border border-white/5 rounded-2xl font-bold text-[10px] uppercase tracking-widest active:bg-slate-700 transition-all shadow-xl">
+                🔄 Sincronizar Base de Datos
+            </button>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        
-        <div class="bento-card">
-            <div class="flex justify-between items-center mb-5">
-                <h3 class="font-semibold text-slate-200">Fiado abierto reciente</h3>
-                <button class="text-gradaBlue text-xs font-bold hover:underline">Gestionar ↗</button>
-            </div>
-            <div class="space-y-4">
-                <div class="flex justify-between items-center p-3 rounded-xl bg-white/2 border border-borderWhite hover:bg-white/5 cursor-pointer transition">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-full bg-yellow-500/10 text-yellow-400 flex items-center justify-center font-bold text-xs border border-yellow-500/20">DC</div>
-                        <div>
-                            <p class="text-sm font-semibold">Doña Carmen</p>
-                            <p class="text-xs text-slate-500">Hace 4 días</p>
-                        </div>
-                    </div>
-                    <p class="text-sm font-bold text-red-400">RD$ 680</p>
-                </div>
-                 <div class="flex justify-between items-center p-3 rounded-xl bg-white/2 border border-borderWhite hover:bg-white/5 cursor-pointer transition">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-full bg-gradaBlue/10 text-gradaBlue flex items-center justify-center font-bold text-xs border border-gradaBlue/20">JR</div>
-                        <div>
-                            <p class="text-sm font-semibold">Junior Reyes</p>
-                            <p class="text-xs text-slate-500">Hace 2 días</p>
-                        </div>
-                    </div>
-                    <p class="text-sm font-bold text-red-400">RD$ 420</p>
-                </div>
-            </div>
-        </div>
+            <div id="mobile-list" class="space-y-3 pb-10"></div>
+        </main>
 
-        <div class="bento-card">
-            <div class="flex justify-between items-center mb-5">
-                <h3 class="font-semibold text-slate-200">Deliverys activos</h3>
-                <button class="text-gradaBlue text-xs font-bold hover:underline">Ver cola ↗</button>
-            </div>
-            <div class="space-y-4">
-                <div class="flex justify-between items-center p-3 rounded-xl bg-white/2 border border-borderWhite hover:bg-white/5 transition">
-                    <div class="flex items-center gap-3">
-                        <div class="w-2 h-2 rounded-full bg-yellow-400"></div>
-                        <div>
-                            <p class="text-sm font-semibold">Familia Santana</p>
-                            <p class="text-xs text-slate-500">Arroz 5kg, Habichuelas, Aceite Goya, Salami</p>
-                        </div>
-                    </div>
-                    <span class="bg-yellow-500/10 text-yellow-400 text-xs px-3 py-1 rounded-full font-bold border border-yellow-500/20">Esperando</span>
-                </div>
-                <div class="flex justify-between items-center p-3 rounded-xl bg-white/2 border border-borderWhite hover:bg-white/5 transition">
-                    <div class="flex items-center gap-3">
-                        <div class="w-2 h-2 rounded-full bg-green-400"></div>
-                        <div>
-                            <p class="text-sm font-semibold">Ramón Díaz</p>
-                            <p class="text-xs text-slate-500">Presidente x 6, Hielo, Chicharrón</p>
-                        </div>
-                    </div>
-                    <span class="bg-green-500/10 text-green-400 text-xs px-3 py-1 rounded-full font-bold border border-green-500/20">En camino</span>
-                </div>
-            </div>
-        </div>
+        <nav class="fixed bottom-0 left-0 right-0 h-16 glass border-t border-white/10 flex justify-around items-center z-50">
+            <button onclick="switchModule('inventario')" id="btn-inventario" class="flex flex-col items-center justify-center w-full h-full tab-active">
+                <span class="text-xl italic">📦</span><span class="text-[9px] font-bold uppercase mt-1">Stock</span>
+            </button>
+            <button onclick="switchModule('cierre')" id="btn-cierre" class="flex flex-col items-center justify-center w-full h-full text-slate-500">
+                <span class="text-xl italic">📅</span><span class="text-[9px] font-bold uppercase mt-1">Cierre</span>
+            </button>
+        </nav>
     </div>
 
     <script>
-        // 1. URL DE TU WEBHOOK DE MAKE.COM (CONFIRMADA)
-        const MAKE_URL = "https://hook.us2.make.com/mi3g1y472l73g51refukafaej8uuspr4";
+        // CONFIGURACIÓN DE ENDPOINTS Y ACCESO
+        const AUTH = { user: "evans", pass: "1234" };
+        
+        // EVANS: AQUÍ ESTÁN TUS TRES URLS REALES. YA RESTAURÉ LA DE GUARDAR.
+        const ENDPOINTS = {
+            inventario: "https://hook.us2.make.com/mi3g1y472l73g51refukafaej8uuspr4",
+            cierre: "https://hook.us2.make.com/d5tivtytjjtyrxw1hhcp4vr5ijerc6b5",
+            guardar: "https://hook.us2.make.com/6aqam5i2qha0wxl6sfh8ee72mu6iin4w" 
+        };
 
-        // 2. Función para actualizar la Fecha Superior
-        function actualizarFecha() {
-            const fechaEl = document.getElementById('fecha-actual');
-            const ahora = new Date();
-            const opciones = { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', hour12: true };
-            // Formato: Jue 17 abr • 9:42am (Ajustado a tu imagen)
-            const fechaFormateada = ahora.toLocaleDateString('es-ES', opciones).replace(',', ' •');
-            fechaEl.innerText = fechaFormateada.charAt(0).toUpperCase() + fechaFormateada.slice(1);
-        }
+        let currentModule = 'inventario', rawData = [], myChart = null;
+        const palette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
 
-        // 3. Función Principal para cargar datos reales de Inventario Crítico
-        async function cargarDatosRealtime() {
-            const statusEl = document.getElementById('status-conexion');
-            const listaStockBajo = document.getElementById('lista-stock-bajo');
+        // LÓGICA DE SESIÓN
+        function handleLogin() {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+            const err = document.getElementById('login-error');
 
-            try {
-                const response = await fetch(MAKE_URL);
-                const data = await response.json();
-
-                console.log("Datos Bento recibidos:", data);
-
-                if (data.status === "success" || data.productos) {
-                    statusEl.innerText = "Conectado a Make";
-                    statusEl.classList.replace('text-yellow-500', 'text-green-400');
-                    
-                    // Limpiar lista de carga
-                    listaStockBajo.innerHTML = '';
-
-                    // Filtrar productos con stock crítico (menos de 15 unidades) y ordenarlos por menos stock
-                    const productosCriticos = data.productos
-                        .filter(prod => prod.stock < 15)
-                        .sort((a, b) => a.stock - b.stock);
-
-                    if (productosCriticos.length === 0) {
-                        listaStockBajo.innerHTML = `<p class="text-center py-6 text-xs text-green-400 italic">Todo el stock está OK</p>`;
-                        return;
-                    }
-
-                    // Renderizar filas de stock bajo (Diseño exacto de tu imagen)
-                    productosCriticos.forEach(prod => {
-                        // Determinar la unidad (bulto, unid) según la categoría o el nombre
-                        let unidad = 'unid';
-                        if (prod.item.toLowerCase().includes('arroz') || prod.categoria.toLowerCase().includes('sacos')) {
-                            unidad = 'bulto';
-                        }
-
-                        listaStockBajo.innerHTML += `
-                            <div class="flex justify-between items-center group">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
-                                    <p class="text-sm font-medium uppercase text-slate-200 group-hover:text-gradaBlue transition">${prod.item}</p>
-                                </div>
-                                <span class="bg-yellow-500/10 text-yellow-400 text-xs px-3 py-1 rounded-full font-bold border border-yellow-500/20">
-                                    ${prod.stock} ${unidad}
-                                </span>
-                            </div>
-                        `;
-                    });
-                }
-            } catch (error) {
-                console.error("Error conectando a Make Bento:", error);
-                statusEl.innerText = "Error de enlace";
-                statusEl.classList.replace('text-yellow-500', 'text-red-500');
-                listaStockBajo.innerHTML = `<p class="text-center py-6 text-xs text-red-400 italic">Error al cargar inventario.</p>`;
+            if (u === AUTH.user && p === AUTH.pass) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                refreshData();
+            } else {
+                err.classList.remove('hidden');
+                setTimeout(() => err.classList.add('hidden'), 3000);
             }
         }
 
-        // Ejecutar funciones al cargar
-        actualizarFecha();
-        cargarDatosRealtime();
-        // Actualizar datos cada 5 minutos automáticamente si está abierto
-        setInterval(cargarDatosRealtime, 5 * 60 * 1000); 
+        function logout() { location.reload(); }
+        function toggleModal() { document.getElementById('modal-registro').classList.toggle('hidden'); }
+
+        // ENVÍO DE DATOS A MAKE CON LÓGICA DE SUMA
+        async function enviarAMake() {
+            const btn = document.getElementById('btn-enviar');
+            const nomOriginal = document.getElementById('reg-nombre').value.trim().toUpperCase();
+            const precioInput = parseFloat(document.getElementById('reg-precio').value);
+            const cantInput = parseInt(document.getElementById('reg-stock').value) || 0;
+            const catInput = document.getElementById('reg-cat').value.trim().toUpperCase();
+
+            if(!nomOriginal || isNaN(precioInput)) return alert("El Nombre y Precio son requeridos");
+
+            // Buscar si el producto ya existe para sumarle el stock
+            const productoExistente = rawData.find(i => {
+                const p = i.data || i.Record || i;
+                const nombreEnLista = (p.NOMBRE_PRODUCTO || p.Nombre_Producto || p.Producto || p.nombre || "").toString().toUpperCase();
+                return nombreEnLista === nomOriginal;
+            });
+
+            let stockFinal = cantInput;
+
+            if (productoExistente) {
+                const p = productoExistente.data || productoExistente.Record || productoExistente;
+                const stockActual = parseInt(p.Stock_Disponible || p.stock || 0);
+                stockFinal = stockActual + cantInput; 
+            }
+
+            const data = {
+                nombre: nomOriginal,
+                precio: precioInput,
+                stock: stockFinal,
+                categoria: catInput
+            };
+
+            btn.innerText = "PROCESANDO...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(ENDPOINTS.guardar, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                // EVANS: AÑADÍ ESTA CONDICIÓN PARA QUE TE AVISE SI MAKE RECHAZA EL ENVÍO
+                if(res.ok) {
+                    alert("Stock actualizado: " + nomOriginal + " ahora tiene " + stockFinal + " unidades.");
+                    toggleModal();
+                    refreshData(); // Recargar la lista
+                } else {
+                    alert("Error: Make.com rechazó la conexión. Revisa que tu escenario esté en ON.");
+                }
+            } catch (e) { 
+                alert("Fallo de red: El servidor de Make no responde en este momento."); 
+            } finally { 
+                btn.innerText = "Guardar en Sistema"; 
+                btn.disabled = false; 
+            }
+        }
+
+        // FUNCIÓN DE BÚSQUEDA RESTAURADA
+        function filterData() {
+            const search = document.getElementById('main-search').value.toLowerCase();
+            const filtered = rawData.filter(i => {
+                const p = i.data || i.Record || i;
+                const nom = (p.Nombre_Producto || p.NOMBRE_PRODUCTO || p.Producto || p.nombre || "").toString().toLowerCase();
+                return nom.includes(search);
+            });
+            renderUI(filtered);
+        }
+
+        // OBTENER DATOS DESDE MAKE
+        async function refreshData() {
+            document.getElementById('module-desc').innerText = "Sincronizando...";
+            try {
+                const response = await fetch(ENDPOINTS[currentModule]);
+                const json = await response.json();
+                let list = json.productos || json.ventas || json.data || json;
+                if (list.data) list = list.data;
+                rawData = Array.isArray(list) ? list : [list];
+                
+                filterData(); // Usa el filtro por si hay algo escrito en el buscador
+                document.getElementById('module-desc').innerText = "Actualizado: " + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            } catch (e) { 
+                document.getElementById('module-desc').innerText = "Error de conexión"; 
+            }
+        }
+
+        // RENDERIZAR INTERFAZ (STOCK Y CIERRE RESTAURADO COMPLETAMENTE)
+        function renderUI(items) {
+            const list = document.getElementById('mobile-list');
+            list.innerHTML = "";
+            let labels = [], values = [], totalVal = 0, alerts = 0;
+
+            if (currentModule === 'inventario') {
+                document.getElementById('kpi-label-1').innerText = "Total Productos";
+                document.getElementById('kpi-label-2').innerText = "Stock Crítico";
+                
+                items.forEach(i => {
+                    const p = i.data || i.Record || i;
+                    const stock = parseInt(p.Stock_Disponible || p.stock || 0);
+                    if (stock < 5) alerts++;
+                    list.innerHTML += `
+                        <div class="glass p-4 rounded-2xl flex justify-between items-center card-entry mb-2">
+                            <div>
+                                <p class="font-bold text-sm uppercase">${p.NOMBRE_PRODUCTO || p.nombre || 'S/N'}</p>
+                                <p class="text-blue-400 text-xs font-mono">RD$ ${parseFloat(p.PRECIO || p.precio || 0).toLocaleString()}</p>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-[10px] font-bold border ${stock < 5 ? 'border-red-500 text-red-500 bg-red-500/10' : 'border-green-500 text-green-500 bg-green-500/10'}">${stock} UDS</span>
+                        </div>`;
+                });
+                document.getElementById('kpi-val-1').innerText = items.length;
+                document.getElementById('kpi-val-2').innerText = alerts;
+                updateChart(items.slice(0,6).map(x => (x.data?.NOMBRE_PRODUCTO || x.nombre || 'Item').substring(0,6)), items.slice(0,6).map(x => x.data?.Stock_Disponible || x.stock || 0), 'bar');
+            
+            } else {
+                // LÓGICA DE CIERRE DEL DÍA
+                document.getElementById('kpi-label-1').innerText = "Caja Hoy";
+                document.getElementById('kpi-label-2').innerText = "Órdenes Totales";
+                let agrupar = {};
+                
+                items.forEach(i => {
+                    const p = i.data || i.Record || i;
+                    const nom = p.Nombre_Producto || p.Producto || "Venta N/A";
+                    const monto = parseFloat(p.Monto_Total || p.monto || 0);
+                    totalVal += monto;
+                    agrupar[nom] = (agrupar[nom] || 0) + monto;
+                    
+                    list.innerHTML += `
+                        <div class="glass p-4 rounded-2xl flex justify-between items-center card-entry mb-2">
+                            <div>
+                                <p class="font-bold text-sm italic">${nom}</p>
+                                <p class="text-slate-500 text-[10px] uppercase">${p.Cantidad || 1} Unidades</p>
+                            </div>
+                            <p class="text-green-400 font-bold font-mono">RD$ ${monto.toLocaleString()}</p>
+                        </div>`;
+                });
+                
+                document.getElementById('kpi-val-1').innerText = "RD$ " + Math.round(totalVal).toLocaleString();
+                document.getElementById('kpi-val-2').innerText = items.length;
+                updateChart(Object.keys(agrupar).slice(0,5), Object.values(agrupar).slice(0,5), 'pie');
+            }
+        }
+
+        // GENERADOR DE GRÁFICOS
+        function updateChart(labels, data, type) {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            if (myChart) myChart.destroy();
+            myChart = new Chart(ctx, {
+                type: type,
+                data: { 
+                    labels: labels, 
+                    datasets: [{ data: data, backgroundColor: palette.map(c => c + 'CC'), borderColor: '#0f172a', borderWidth: 2 }] 
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { display: type === 'pie', position: 'bottom', labels: { color: '#94a3b8', font: {size: 8} } } },
+                    scales: type === 'bar' ? { y: { beginAtZero: true, ticks: { color: '#94a3b8', font: {size: 8} } }, x: { ticks: { color: '#94a3b8', font: {size: 8} } } } : {}
+                }
+            });
+        }
+
+        // CAMBIO DE PESTAÑAS
+        function switchModule(mod) {
+            currentModule = mod;
+            document.querySelectorAll('nav button').forEach(el => el.classList.remove('tab-active', 'text-slate-500'));
+            document.getElementById('btn-' + mod).classList.add('tab-active');
+            document.getElementById('module-title').innerText = mod === 'inventario' ? 'Inventario' : 'Cierre Hoy';
+            refreshData(); // Al cambiar, refrescamos los datos para pintar la pantalla correcta
+        }
     </script>
 </body>
 </html>
