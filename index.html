@@ -2,272 +2,260 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>COMPIURI OS - Admin Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Pro - Colmado La Grada</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        darkBg: '#121212',
+                        cardBg: '#1E1E1E',
+                        borderWhite: 'rgba(255,255,255,0.08)',
+                        gradaBlue: '#3B82F6',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; min-height: 100vh; overflow-x: hidden; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .tab-active { color: #60a5fa; border-top: 3px solid #3b82f6; background: rgba(59, 130, 246, 0.1); }
-        .chart-container { position: relative; height: 260px; width: 100%; }
-        #login-screen, #modal-registro, #loading-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(15, 23, 42, 0.95); display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .hidden { display: none !important; }
-        input { transition: all 0.2s; }
-        input:focus { border-color: #3b82f6 !important; outline: none; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); }
-        .card-entry { animation: slideIn 0.3s ease-out; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        body { background-color: #121212; color: white; }
+        .bento-card {
+            background-color: #1E1E1E;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        .bento-card:hover { border-color: rgba(59, 130, 246, 0.5); transform: translateY(-2px); }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="pb-20">
+<body class="p-4 md:p-6 lg:p-8">
 
-    <div id="loading-overlay" class="hidden">
-        <div class="text-center">
-            <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p class="text-xs uppercase tracking-widest font-bold text-blue-400">Actualizando...</p>
-        </div>
-    </div>
-
-    <div id="login-screen">
-        <div class="glass p-8 rounded-3xl w-full max-w-sm shadow-2xl text-center space-y-6">
-            <h2 class="text-3xl font-bold text-blue-400 italic">COMPIURI OS</h2>
-            <div class="space-y-4 text-left">
-                <input type="text" id="user" placeholder="Usuario" class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl text-sm">
-                <input type="password" id="pass" placeholder="Contraseña" class="w-full bg-slate-900 border border-white/10 p-4 rounded-xl text-sm">
-                <p id="login-error" class="text-red-500 text-[10px] font-bold uppercase hidden text-center">Credenciales Incorrectas</p>
-                <button onclick="handleLogin()" class="w-full py-4 bg-blue-600 rounded-xl font-bold uppercase text-xs active:scale-95 transition-all">Acceder</button>
-            </div>
-            <p class="text-[9px] text-slate-600 uppercase">Evans Martínez © 2026</p>
-        </div>
-    </div>
-
-    <div id="modal-registro" class="hidden">
-        <div class="glass p-6 rounded-3xl w-full max-w-sm space-y-4 relative shadow-2xl border-t-2 border-blue-500">
-            <button onclick="toggleModal()" class="absolute top-4 right-4 text-slate-400 text-xl">✕</button>
-            <h3 class="text-xl font-bold text-blue-100 italic uppercase">Gestión de Stock</h3>
-            <div class="space-y-3">
-                <input type="text" id="reg-nombre" placeholder="NOMBRE DEL PRODUCTO" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm uppercase">
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="number" id="reg-precio" placeholder="PRECIO RD$" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm">
-                    <input type="number" id="reg-stock" placeholder="CANT. A SUMAR" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm">
-                </div>
-                <input type="text" id="reg-cat" placeholder="CATEGORÍA" class="w-full bg-slate-900 border border-white/10 p-3 rounded-xl text-sm uppercase">
-                <button onclick="enviarAMake()" id="btn-enviar" class="w-full py-4 bg-green-600 rounded-xl font-bold uppercase text-xs shadow-lg mt-2">Guardar Cambios</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="main-app" class="hidden">
-        <header class="p-6 glass sticky top-0 z-50 flex justify-between items-center">
+    <header class="flex justify-between items-center mb-8 bento-card">
+        <div class="flex items-center gap-3">
+            <div class="bg-gradaBlue/10 p-3 rounded-xl text-gradaBlue text-2xl">🏪</div>
             <div>
-                <h1 id="module-title" class="text-2xl font-bold tracking-tighter text-blue-400 italic uppercase">Inventario</h1>
-                <p id="module-desc" class="text-[9px] text-slate-500 uppercase font-bold italic">Hola, Evans</p>
+                <h1 class="text-xl font-bold">Colmado La Grada</h1>
+                <p class="text-xs text-slate-400">Panel de Control Operativo | Evans</p>
             </div>
-            <div class="flex gap-2">
-                <button onclick="logout()" class="text-slate-500 text-[10px] font-bold uppercase px-3 py-2 border border-white/10 rounded-xl">Salir</button>
-                <button onclick="toggleModal()" class="bg-blue-600 w-10 h-10 rounded-xl flex items-center justify-center text-xl font-bold">+</button>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="text-right">
+                <p id="fecha-actual" class="text-sm font-medium"></p>
+                <p id="status-conexion" class="text-xs text-yellow-500 font-bold">Conectando a Make...</p>
             </div>
-        </header>
+            <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold text-gradaBlue border border-borderWhite">E</div>
+        </div>
+    </header>
 
-        <main class="p-4 space-y-6">
-            <input type="text" id="main-search" oninput="filterData()" placeholder="Buscar..." class="w-full bg-slate-900 border border-white/10 p-4 rounded-2xl text-sm glass">
+    <nav class="flex gap-2 mb-8 overflow-x-auto scrollbar-hide pb-2">
+        <button class="bg-gradaBlue text-white px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 flex-shrink-0">
+            📊 Hoy
+        </button>
+        <button class="bg-cardBg text-slate-300 hover:text-white px-5 py-2.5 rounded-xl text-sm flex items-center gap-2 border border-borderWhite flex-shrink-0">
+            📦 Inventario
+        </button>
+        <button class="bg-cardBg text-slate-300 hover:text-white px-5 py-2.5 rounded-xl text-sm flex items-center gap-2 border border-borderWhite flex-shrink-0">
+            🤝 Fiado <span class="bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full text-xs font-bold">3</span>
+        </button>
+        <button class="bg-cardBg text-slate-300 hover:text-white px-5 py-2.5 rounded-xl text-sm flex items-center gap-2 border border-borderWhite flex-shrink-0">
+            🛵 Delivery <span class="bg-gradaBlue/20 text-gradaBlue px-2 py-0.5 rounded-full text-xs font-bold">2</span>
+        </button>
+    </nav>
 
-            <div class="grid grid-cols-2 gap-4">
-                <div class="glass p-5 rounded-2xl border-l-4 border-blue-500">
-                    <p id="kpi-label-1" class="text-[9px] uppercase text-slate-500 mb-1 font-bold">--</p>
-                    <p id="kpi-val-1" class="text-2xl font-bold">--</p>
-                </div>
-                <div class="glass p-5 rounded-2xl border-l-4 border-red-500">
-                    <p id="kpi-label-2" class="text-[9px] uppercase text-slate-500 mb-1 font-bold">--</p>
-                    <p id="kpi-val-2" class="text-2xl font-bold">--</p>
-                </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        
+        <div class="bento-card lg:col-span-1 flex flex-col justify-between">
+            <p class="text-slate-400 text-sm mb-1">Ventas de hoy</p>
+            <h2 class="text-3xl font-bold text-white mb-1">RD$ 4,820</h2>
+            <p class="text-xs text-green-400 font-medium">+12% vs ayer</p>
+        </div>
+
+        <div class="bento-card flex flex-col justify-between">
+            <p class="text-slate-400 text-sm mb-1">Transacciones</p>
+            <h2 class="text-3xl font-bold text-white mb-1">47</h2>
+            <p class="text-xs text-green-400 font-medium">+5 vs ayer</p>
+        </div>
+
+        <div class="bento-card flex flex-col justify-between">
+            <p class="text-slate-400 text-sm mb-1">En fiado abierto</p>
+            <h2 class="text-3xl font-bold text-red-400 mb-1">RD$ 1,340</h2>
+            <p class="text-xs text-slate-500 font-medium">3 clientes activos</p>
+        </div>
+
+        <div class="bento-card flex flex-col justify-between">
+            <p class="text-slate-400 text-sm mb-1">Delivery pendiente</p>
+            <h2 class="text-3xl font-bold text-gradaBlue mb-1">2</h2>
+            <p class="text-xs text-slate-500 font-medium">1 en camino</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div class="bento-card lg:col-span-2">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-semibold text-slate-200">Ventas - últimos 7 días</h3>
+                <span class="text-xs text-slate-500 uppercase font-bold">RD$</span>
             </div>
+            <div class="h-48 bg-gradaBlue/5 rounded-xl border border-dashed border-gradaBlue/20 flex items-center justify-center text-sm text-slate-600 italic">
+                [ Espacio para Gráfico de Línea ]
+            </div>
+        </div>
 
-            <div class="glass p-4 rounded-3xl"><div class="chart-container"><canvas id="mainChart"></canvas></div></div>
+        <div class="bento-card lg:col-span-1">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="font-semibold text-slate-200">Stock bajo</h3>
+                <button class="text-gradaBlue text-xs font-bold hover:underline">Ver todo ↗</button>
+            </div>
             
-            <button onclick="refreshData()" class="w-full py-4 bg-slate-800 border border-white/5 rounded-2xl font-bold text-[10px] uppercase tracking-widest active:bg-slate-700 transition-all shadow-xl">
-                🔄 Sincronizar Datos
-            </button>
+            <div id="lista-stock-bajo" class="space-y-4 max-h-60 overflow-y-auto scrollbar-hide">
+                <p class="text-center py-6 text-sm text-slate-600 italic">Cargando inventario crítico...</p>
+                </div>
+        </div>
+    </div>
 
-            <div id="mobile-list" class="space-y-3 pb-10"></div>
-        </main>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        
+        <div class="bento-card">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="font-semibold text-slate-200">Fiado abierto reciente</h3>
+                <button class="text-gradaBlue text-xs font-bold hover:underline">Gestionar ↗</button>
+            </div>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center p-3 rounded-xl bg-white/2 border border-borderWhite hover:bg-white/5 cursor-pointer transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-yellow-500/10 text-yellow-400 flex items-center justify-center font-bold text-xs border border-yellow-500/20">DC</div>
+                        <div>
+                            <p class="text-sm font-semibold">Doña Carmen</p>
+                            <p class="text-xs text-slate-500">Hace 4 días</p>
+                        </div>
+                    </div>
+                    <p class="text-sm font-bold text-red-400">RD$ 680</p>
+                </div>
+                 <div class="flex justify-between items-center p-3 rounded-xl bg-white/2 border border-borderWhite hover:bg-white/5 cursor-pointer transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-gradaBlue/10 text-gradaBlue flex items-center justify-center font-bold text-xs border border-gradaBlue/20">JR</div>
+                        <div>
+                            <p class="text-sm font-semibold">Junior Reyes</p>
+                            <p class="text-xs text-slate-500">Hace 2 días</p>
+                        </div>
+                    </div>
+                    <p class="text-sm font-bold text-red-400">RD$ 420</p>
+                </div>
+            </div>
+        </div>
 
-        <nav class="fixed bottom-0 left-0 right-0 h-16 glass border-t border-white/10 flex justify-around items-center z-50">
-            <button onclick="switchModule('inventario')" id="btn-inventario" class="flex flex-col items-center justify-center w-full h-full tab-active">
-                <span class="text-xl italic">📦</span><span class="text-[9px] font-bold uppercase mt-1">Stock</span>
-            </button>
-            <button onclick="switchModule('cierre')" id="btn-cierre" class="flex flex-col items-center justify-center w-full h-full text-slate-500">
-                <span class="text-xl italic">📅</span><span class="text-[9px] font-bold uppercase mt-1">Cierre</span>
-            </button>
-        </nav>
+        <div class="bento-card">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="font-semibold text-slate-200">Deliverys activos</h3>
+                <button class="text-gradaBlue text-xs font-bold hover:underline">Ver cola ↗</button>
+            </div>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center p-3 rounded-xl bg-white/2 border border-borderWhite hover:bg-white/5 transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 rounded-full bg-yellow-400"></div>
+                        <div>
+                            <p class="text-sm font-semibold">Familia Santana</p>
+                            <p class="text-xs text-slate-500">Arroz 5kg, Habichuelas, Aceite Goya, Salami</p>
+                        </div>
+                    </div>
+                    <span class="bg-yellow-500/10 text-yellow-400 text-xs px-3 py-1 rounded-full font-bold border border-yellow-500/20">Esperando</span>
+                </div>
+                <div class="flex justify-between items-center p-3 rounded-xl bg-white/2 border border-borderWhite hover:bg-white/5 transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 rounded-full bg-green-400"></div>
+                        <div>
+                            <p class="text-sm font-semibold">Ramón Díaz</p>
+                            <p class="text-xs text-slate-500">Presidente x 6, Hielo, Chicharrón</p>
+                        </div>
+                    </div>
+                    <span class="bg-green-500/10 text-green-400 text-xs px-3 py-1 rounded-full font-bold border border-green-500/20">En camino</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        const AUTH = { user: "evans", pass: "1234" };
-        const ENDPOINTS = {
-            inventario: "https://hook.us2.make.com/mi3g1y472l73g51refukafaej8uuspr4",
-            cierre: "https://hook.us2.make.com/d5tivtytjjtyrxw1hhcp4vr5ijerc6b5",
-            guardar: "https://hook.us2.make.com/6aqam5i2qha0wxl6sfh8ee72mu6iin4w"
-        };
+        // 1. URL DE TU WEBHOOK DE MAKE.COM (CONFIRMADA)
+        const MAKE_URL = "https://hook.us2.make.com/mi3g1y472l73g51refukafaej8uuspr4";
 
-        let currentModule = 'inventario', rawData = [], myChart = null;
-        const palette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
-
-        window.onload = () => {
-            if(localStorage.getItem('compiuri_session') === 'active') {
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('main-app').classList.remove('hidden');
-                refreshData();
-            }
-        };
-
-        function handleLogin() {
-            const u = document.getElementById('user').value;
-            const p = document.getElementById('pass').value;
-            if (u === AUTH.user && p === AUTH.pass) {
-                localStorage.setItem('compiuri_session', 'active');
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('main-app').classList.remove('hidden');
-                refreshData();
-            } else {
-                document.getElementById('login-error').classList.remove('hidden');
-            }
+        // 2. Función para actualizar la Fecha Superior
+        function actualizarFecha() {
+            const fechaEl = document.getElementById('fecha-actual');
+            const ahora = new Date();
+            const opciones = { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', hour12: true };
+            // Formato: Jue 17 abr • 9:42am (Ajustado a tu imagen)
+            const fechaFormateada = ahora.toLocaleDateString('es-ES', opciones).replace(',', ' •');
+            fechaEl.innerText = fechaFormateada.charAt(0).toUpperCase() + fechaFormateada.slice(1);
         }
 
-        function logout() { localStorage.removeItem('compiuri_session'); location.reload(); }
-        function toggleModal() { document.getElementById('modal-registro').classList.toggle('hidden'); }
-
-        async function enviarAMake() {
-            const btn = document.getElementById('btn-enviar');
-            const nomOriginal = document.getElementById('reg-nombre').value.trim().toUpperCase();
-            const precioInput = parseFloat(document.getElementById('reg-precio').value);
-            const cantInput = parseInt(document.getElementById('reg-stock').value) || 0;
-            const catInput = document.getElementById('reg-cat').value.trim().toUpperCase();
-
-            if(!nomOriginal || isNaN(precioInput)) return alert("Datos incompletos");
-
-            const productoExistente = rawData.find(i => {
-                const p = i.data || i.Record || i;
-                const nomLista = (p.NOMBRE_PRODUCTO || p.nombre || p.Producto || "").toString().trim().toUpperCase();
-                return nomLista === nomOriginal;
-            });
-
-            let stockFinal = cantInput;
-            if (productoExistente) {
-                const p = productoExistente.data || productoExistente.Record || productoExistente;
-                stockFinal = parseInt(p.Stock_Disponible || p.stock || 0) + cantInput;
-            }
-
-            const data = { nombre: nomOriginal, precio: precioInput, stock: stockFinal, categoria: catInput };
-            btn.innerText = "PROCESANDO..."; btn.disabled = true;
+        // 3. Función Principal para cargar datos reales de Inventario Crítico
+        async function cargarDatosRealtime() {
+            const statusEl = document.getElementById('status-conexion');
+            const listaStockBajo = document.getElementById('lista-stock-bajo');
 
             try {
-                const res = await fetch(ENDPOINTS.guardar, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                if(res.ok) {
-                    alert("✅ Éxito: " + nomOriginal + " actualizado.");
-                    toggleModal();
-                    document.getElementById('loading-overlay').classList.remove('hidden');
-                    setTimeout(() => {
-                        document.getElementById('loading-overlay').classList.add('hidden');
-                        refreshData();
-                    }, 3000);
+                const response = await fetch(MAKE_URL);
+                const data = await response.json();
+
+                console.log("Datos Bento recibidos:", data);
+
+                if (data.status === "success" || data.productos) {
+                    statusEl.innerText = "Conectado a Make";
+                    statusEl.classList.replace('text-yellow-500', 'text-green-400');
+                    
+                    // Limpiar lista de carga
+                    listaStockBajo.innerHTML = '';
+
+                    // Filtrar productos con stock crítico (menos de 15 unidades) y ordenarlos por menos stock
+                    const productosCriticos = data.productos
+                        .filter(prod => prod.stock < 15)
+                        .sort((a, b) => a.stock - b.stock);
+
+                    if (productosCriticos.length === 0) {
+                        listaStockBajo.innerHTML = `<p class="text-center py-6 text-xs text-green-400 italic">Todo el stock está OK</p>`;
+                        return;
+                    }
+
+                    // Renderizar filas de stock bajo (Diseño exacto de tu imagen)
+                    productosCriticos.forEach(prod => {
+                        // Determinar la unidad (bulto, unid) según la categoría o el nombre
+                        let unidad = 'unid';
+                        if (prod.item.toLowerCase().includes('arroz') || prod.categoria.toLowerCase().includes('sacos')) {
+                            unidad = 'bulto';
+                        }
+
+                        listaStockBajo.innerHTML += `
+                            <div class="flex justify-between items-center group">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                                    <p class="text-sm font-medium uppercase text-slate-200 group-hover:text-gradaBlue transition">${prod.item}</p>
+                                </div>
+                                <span class="bg-yellow-500/10 text-yellow-400 text-xs px-3 py-1 rounded-full font-bold border border-yellow-500/20">
+                                    ${prod.stock} ${unidad}
+                                </span>
+                            </div>
+                        `;
+                    });
                 }
-            } catch (e) { alert("Error"); }
-            finally { btn.innerText = "Guardar Cambios"; btn.disabled = false; }
-        }
-
-        function filterData() {
-            const search = document.getElementById('main-search').value.toLowerCase().trim();
-            const filtered = rawData.filter(i => {
-                const p = i.data || i.Record || i;
-                const nom = (p.Nombre_Producto || p.NOMBRE_PRODUCTO || p.Producto || p.nombre || "").toString().toLowerCase();
-                return nom.includes(search);
-            });
-            renderUI(filtered);
-        }
-
-        async function refreshData() {
-            document.getElementById('module-desc').innerText = "Sincronizando...";
-            try {
-                const response = await fetch(`${ENDPOINTS[currentModule]}?t=${new Date().getTime()}`, { cache: 'no-store' });
-                const json = await response.json();
-                let list = json.productos || json.ventas || json.data || json;
-                if (list.data) list = list.data;
-                rawData = Array.isArray(list) ? list : [list];
-                filterData();
-                document.getElementById('module-desc').innerText = "Estado: Conectado";
-            } catch (e) { document.getElementById('module-desc').innerText = "Error"; }
-        }
-
-        function renderUI(items) {
-            const list = document.getElementById('mobile-list');
-            list.innerHTML = "";
-            let totalVal = 0, alerts = 0;
-
-            if (currentModule === 'inventario') {
-                document.getElementById('kpi-label-1').innerText = "Total Productos";
-                document.getElementById('kpi-label-2').innerText = "Stock Crítico";
-                items.forEach(i => {
-                    const p = i.data || i.Record || i;
-                    const stock = parseInt(p.Stock_Disponible || p.stock || 0);
-                    if (stock < 5) alerts++;
-                    list.innerHTML += `<div class="glass p-4 rounded-2xl flex justify-between items-center card-entry mb-2"><div><p class="font-bold text-sm uppercase">${p.NOMBRE_PRODUCTO || p.nombre || 'S/N'}</p><p class="text-blue-400 text-xs">RD$ ${parseFloat(p.PRECIO || p.precio || 0).toLocaleString()}</p></div><span class="px-3 py-1 rounded-full text-[10px] font-bold border ${stock < 5 ? 'border-red-500 text-red-500 bg-red-500/10' : 'border-green-500 text-green-500 bg-green-500/10'}">${stock} UDS</span></div>`;
-                });
-                document.getElementById('kpi-val-1').innerText = items.length;
-                document.getElementById('kpi-val-2').innerText = alerts;
-                updateChart(items.slice(0,6).map(x => (x.data?.NOMBRE_PRODUCTO || x.nombre || 'Item').substring(0,6)), items.slice(0,6).map(x => x.data?.Stock_Disponible || x.stock || 0), 'bar');
-            } else {
-                document.getElementById('kpi-label-1').innerText = "Caja Hoy";
-                document.getElementById('kpi-label-2').innerText = "Ventas";
-                let agrupar = {};
-                items.forEach(i => {
-                    const p = i.data || i.Record || i;
-                    const nom = p.Nombre_Producto || p.Producto || p.nombre || "Venta";
-                    const monto = parseFloat(p.Monto_Total || p.monto || 0);
-                    totalVal += monto;
-                    agrupar[nom] = (agrupar[nom] || 0) + monto;
-                    list.innerHTML += `<div class="glass p-4 rounded-2xl flex justify-between items-center card-entry mb-2"><div><p class="font-bold text-sm italic">${nom}</p><p class="text-slate-500 text-[10px] uppercase">${p.Cantidad || 1} Uds</p></div><p class="text-green-400 font-bold font-mono">RD$ ${monto.toLocaleString()}</p></div>`;
-                });
-                document.getElementById('kpi-val-1').innerText = "RD$ " + Math.round(totalVal).toLocaleString();
-                document.getElementById('kpi-val-2').innerText = items.length;
-                
-                // AQUÍ SE GENERA LA GRÁFICA DE TORTA
-                updateChart(Object.keys(agrupar).slice(0,5), Object.values(agrupar).slice(0,5), 'pie');
+            } catch (error) {
+                console.error("Error conectando a Make Bento:", error);
+                statusEl.innerText = "Error de enlace";
+                statusEl.classList.replace('text-yellow-500', 'text-red-500');
+                listaStockBajo.innerHTML = `<p class="text-center py-6 text-xs text-red-400 italic">Error al cargar inventario.</p>`;
             }
         }
 
-        function updateChart(labels, data, type) {
-            const ctx = document.getElementById('mainChart').getContext('2d');
-            if (myChart) myChart.destroy();
-            myChart = new Chart(ctx, {
-                type: type,
-                data: { labels: labels, datasets: [{ data: data, backgroundColor: palette.map(c => c + 'CC'), borderColor: '#0f172a', borderWidth: 2 }] },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    plugins: { 
-                        legend: { display: type === 'pie', position: 'bottom', labels: { color: '#94a3b8', font: {size: 8} } } 
-                    },
-                    scales: type === 'bar' ? { 
-                        y: { beginAtZero: true, ticks: { color: '#94a3b8', font: {size: 8} } }, 
-                        x: { ticks: { color: '#94a3b8', font: {size: 8} } } 
-                    } : {}
-                }
-            });
-        }
-
-        function switchModule(mod) {
-            currentModule = mod;
-            document.querySelectorAll('nav button').forEach(el => el.classList.remove('tab-active', 'text-slate-500'));
-            document.getElementById('btn-' + mod).classList.add('tab-active');
-            document.getElementById('module-title').innerText = mod === 'inventario' ? 'Inventario' : 'Cierre Hoy';
-            refreshData();
-        }
+        // Ejecutar funciones al cargar
+        actualizarFecha();
+        cargarDatosRealtime();
+        // Actualizar datos cada 5 minutos automáticamente si está abierto
+        setInterval(cargarDatosRealtime, 5 * 60 * 1000); 
     </script>
 </body>
 </html>
